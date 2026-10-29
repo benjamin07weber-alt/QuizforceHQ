@@ -123,4 +123,4 @@ In your **new HQ Pages project**:
 - **No extra SQL setup** is needed for HQ; the API creates HQ-only tables automatically after successful sign-in.
 
 Official Cloudflare references: https://developers.cloudflare.com/pages/framework-guides/deploy-anything/ and https://developers.cloudflare.com/pages/functions/bindings/.
-QUIZFORCE HQ — Production deployment activated!! ⚡
+QUIZFORCE HQ — Production deployment activated!! !⚡
