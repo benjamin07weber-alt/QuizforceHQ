@@ -1,0 +1,14 @@
+⚡ QUIZFORCE HQ — READY TO LAUNCH
+
+1. Make a NEW GitHub repository named QuizforceHQ.
+2. Upload the public and functions folders from this ZIP, preserving their paths.
+3. Create a NEW Cloudflare Pages project connected to that repository.
+   Build command: exit 0
+   Output directory: public
+4. Bind the EXISTING D1 database "quizforce-leaderboard" as DB.
+5. Add encrypted Cloudflare secrets HQ_ADMIN_PASSWORD (12+ characters)
+   and HQ_SESSION_SECRET (32+ random characters).
+6. Redeploy, open the new Pages URL and sign in.
+
+Read README.md for detailed screenshots-free steps and troubleshooting.
+Do NOT upload this ZIP to your original QUIZFORCE game repository.
