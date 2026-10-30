@@ -6,7 +6,7 @@
 <meta name="theme-color" content="#080e23">
 <meta name="robots" content="noindex,nofollow,noarchive">
 <meta http-equiv="Content-Security-Policy" content="default-src 'self'; connect-src 'self'; img-src 'self' data:; script-src 'self' 'unsafe-inline'; style-src 'self' 'unsafe-inline'; object-src 'none'; base-uri 'none'; form-action 'self'; frame-ancestors 'none'">
-<title>QUIZFORCE HQ • Mission Control</title>
+<title>QUIZFORCE HQ v2.0 • Mission Control</title>
 <style>
 :root{--bg:#080e23;--bg2:#0c1530;--card:#121e3a;--card2:#162443;--border:#263657;--text:#f5f8ff;--muted:#9faecb;--cyan:#4cf0d9;--blue:#58aaff;--violet:#a18dff;--yellow:#ffda63;--pink:#ff8bba;--green:#8af1b0;--red:#ff8c97;--radius:20px}
 *{box-sizing:border-box}html{scroll-behavior:smooth}body{margin:0;background:var(--bg);color:var(--text);font-family:Inter,ui-sans-serif,-apple-system,BlinkMacSystemFont,"Segoe UI",sans-serif;font-size:14px;line-height:1.5}button,input,select{font:inherit}button{cursor:pointer}button:disabled{cursor:not-allowed;opacity:.5}a{color:var(--cyan)}[hidden]{display:none!important}::selection{background:#2d7779;color:white}
@@ -27,7 +27,17 @@
 @media(max-width:950px){.app{grid-template-columns:74px minmax(0,1fr)}.sidebar{padding:23px 9px}.brand{padding:0 6px 28px;justify-content:center}.brand strong,.brand small,.side-label,.nav-btn .nav-text,.sidebar-bottom .secure-pill,.sidebar-bottom .side-note,.side-action span{display:none}.nav-btn{justify-content:center;padding:12px 5px}.nav-btn .nav-emoji{font-size:23px}.brand-logo{flex:none}.side-action{padding:12px 0}.grid-two{grid-template-columns:1fr}.main{padding:25px 22px 45px}}
 @media(max-width:600px){.app{display:block}.sidebar{display:none}.main{padding:22px 14px 110px}.topbar{align-items:flex-start;margin-bottom:19px}.topbar h1{font-size:27px}.update-note{display:none}.top-right{gap:6px}.avatar{display:none}.hero{padding:21px 19px}.hero-grid{grid-template-columns:1fr}.hero h2{font-size:28px}.hero-badge{max-width:none;display:grid;grid-template-columns:32px 1fr;gap:0 10px;padding:13px}.hero-badge .crown{grid-row:1/4}.hero-badge .mini{margin:0}.hero-badge .champ-name{font-size:18px}.metrics{grid-template-columns:repeat(2,minmax(0,1fr));gap:10px}.metric{padding:15px}.metric-value{font-size:25px}.metric:last-child{grid-column:span 2}.panel{padding:17px}.subject-row{grid-template-columns:105px 1fr 30px}.admin-grid{grid-template-columns:1fr}.admin-hero{align-items:flex-start;padding:19px}.admin-hero .shield{width:48px;height:48px;font-size:23px}.admin-hero h2{font-size:20px}.section-intro{align-items:flex-start;flex-direction:column;gap:9px}.filter-bar .field.search{width:100%}.select{flex:1;min-width:120px}.mobile-bar{position:fixed;bottom:0;left:0;right:0;z-index:20;display:grid;grid-template-columns:repeat(4,1fr);background:#101b35f5;backdrop-filter:blur(15px);border-top:1px solid #33476b;padding:9px 5px calc(9px + env(safe-area-inset-bottom))}.mobile-btn{background:transparent;border:0;color:#8fa4c6;font-size:10px;font-weight:800;display:grid;justify-items:center;gap:2px;padding:3px}.mobile-btn span{font-size:20px}.mobile-btn.active{color:var(--cyan)}.login-card{padding:29px 22px}.pagination{flex-wrap:wrap}.toast{bottom:87px;right:12px}.modal{padding:21px}}
 @media(prefers-reduced-motion:reduce){*{animation:none!important;transition:none!important;scroll-behavior:auto!important}}
+.version-badge{display:inline-flex;align-items:center;gap:7px;padding:7px 12px;border-radius:999px;background:linear-gradient(110deg,#164d58,#253a69);border:1px solid #56f0df88;color:#d8fff7;font-size:12px;font-weight:950;letter-spacing:.7px;white-space:nowrap;box-shadow:0 0 19px #4cf0d91c}.version-badge .version-dot{height:8px;width:8px;border-radius:50%;background:#4cf0d9;box-shadow:0 0 0 4px #4cf0d926}.login-version{margin:14px auto 12px;justify-content:center;font-size:13px;padding:8px 14px}.top-version{margin-top:8px}.hero-version{color:#eafffa;border-color:#4cf0d966;background:#1a61576b}
+@media(max-width:600px){.top-version{font-size:10px;padding:5px 8px;margin-top:7px}.version-badge .version-dot{height:6px;width:6px}.login-version{font-size:12px}}
 </style>
+<!-- QUIZFORCE HQ PWA • private mission control home-screen app -->
+<meta name="apple-mobile-web-app-capable" content="yes">
+<meta name="apple-mobile-web-app-status-bar-style" content="black-translucent">
+<meta name="apple-mobile-web-app-title" content="QF HQ">
+<meta name="mobile-web-app-capable" content="yes">
+<link rel="manifest" href="/manifest.webmanifest">
+<link rel="apple-touch-icon" sizes="180x180" href="/apple-touch-icon.png">
+<link rel="icon" type="image/png" sizes="192x192" href="/icon-192.png">
 </head>
 <body>
 <div class="bg-glow"></div>
@@ -37,6 +47,7 @@
     <div class="login-icon">⚡</div>
     <div class="overline">TOP SECRET • ADMIN ONLY</div>
     <h1>QUIZFORCE <span style="color:var(--cyan)">HQ</span></h1>
+    <div class="version-badge login-version"><span class="version-dot"></span> VERSION 2.0 • LIVE SYNC</div>
     <p>Your private mission control for the QUIZFORCE universe.</p>
     <form id="loginForm"><label for="password">🔐 HQ password</label><input id="password" type="password" placeholder="Enter your HQ password" autocomplete="current-password" required minlength="12"><button class="btn" type="submit" id="loginBtn">🚀 Enter mission control</button></form>
     <div class="login-error" id="loginError" role="alert"></div>
@@ -53,12 +64,12 @@
       <button class="nav-btn" data-view="games"><span class="nav-emoji">🎮</span><span class="nav-text">Games &amp; scores</span></button>
       <button class="nav-btn" data-view="admin"><span class="nav-emoji">🛡️</span><span class="nav-text">Admin controls</span></button>
     </nav>
-    <div class="sidebar-bottom"><div class="secure-pill"><span class="dot"></span> PRIVATE &amp; SECURE</div><button class="side-action" id="logoutBtn">🚪 <span>Sign out</span></button><div class="side-note">QUIZFORCE HQ • LIVE SYNC v2</div></div>
+    <div class="sidebar-bottom"><div class="secure-pill"><span class="dot"></span> PRIVATE &amp; SECURE</div><button class="side-action" id="logoutBtn">🚪 <span>Sign out</span></button><div class="side-note">QUIZFORCE HQ • v2.0 • LIVE SYNC</div></div>
   </aside>
   <main class="main">
-    <header class="topbar"><div><div class="eyebrow">🌍 Worldwide intelligence</div><h1 id="pageTitle">Mission overview</h1></div><div class="top-right"><div class="update-note" id="lastUpdate">Loading data…</div><button class="icon-btn" id="refreshBtn" title="Refresh data" aria-label="Refresh data">↻ Refresh</button><div class="avatar">👑</div></div></header>
+    <header class="topbar"><div><div class="eyebrow">🌍 Worldwide intelligence</div><h1 id="pageTitle">Mission overview</h1><div class="version-badge top-version"><span class="version-dot"></span> HQ v2.0 • LIVE SYNC</div></div><div class="top-right"><div class="update-note" id="lastUpdate">Loading data…</div><button class="icon-btn" id="refreshBtn" title="Refresh data" aria-label="Refresh data">↻ Refresh</button><div class="avatar">👑</div></div></header>
     <section class="view active" id="view-overview">
-      <div class="hero"><div class="hero-grid"><div><span class="hero-tag">✦ YOUR QUIZFORCE UNIVERSE</span><h2>Every quiz. Every player.<br><em>One epic HQ.</em></h2><p>Watch the QUIZFORCE universe grow, celebrate your top players, and see every completed game—all in one place.</p></div><div class="hero-badge"><div class="crown">🏆</div><div class="mini" id="champLabel">TOP XP PLAYER</div><div class="champ-name" id="champName">Loading…</div><div class="champ-xp" id="champXP">—</div></div></div></div>
+      <div class="hero"><div class="hero-grid"><div><span class="hero-tag hero-version">⚡ QUIZFORCE HQ v2.0 • LIVE SYNC</span><h2>Every quiz. Every player.<br><em>One epic HQ.</em></h2><p>Watch the QUIZFORCE universe grow, celebrate your top players, and see every completed game—all in one place.</p></div><div class="hero-badge"><div class="crown">🏆</div><div class="mini" id="champLabel">TOP XP PLAYER</div><div class="champ-name" id="champName">Loading…</div><div class="champ-xp" id="champXP">—</div></div></div></div>
       <div class="metrics" id="metrics"><div class="empty">Loading worldwide stats…</div></div>
       <div class="grid-two">
         <div class="panel"><div class="panel-head"><div><h3>📈 Game activity</h3><p>Completed tests in the last 14 days</p></div><span class="panel-icon">⚡</span></div><div class="chart" id="activityChart"></div><div class="chart-axis"><span id="chartFrom">—</span><span>UTC dates</span><span id="chartTo">—</span></div><div class="activity-footer"><span>Tracked games this fortnight</span><strong id="fortnightTotal">—</strong></div></div>
@@ -80,7 +91,7 @@
         <div class="panel admin-card"><h3>📦 Download your data</h3><p>Export the current player records and completed games as CSV files.</p><div class="admin-actions"><button class="btn secondary" data-export="players">⬇ Players CSV</button><button class="btn secondary" data-export="games">⬇ Games CSV</button></div></div>
       </div>
       <div class="notice">🔐 <strong>Privacy:</strong> Your HQ data is only returned after password sign-in. Keep the HQ password and session secret in Cloudflare, never in GitHub or the website code.</div>
-      <div class="notice">⚡ <strong>LIVE GAME SYNC:</strong> Player XP, nicknames, featured champion, and corrections to newly linked leaderboard scores now sync to QUIZFORCE. Existing unlinked scores remain unchanged. Players receive XP edits when they open or return to the game online.</div>
+      <div class="notice">⚡ <strong>LIVE GAME SYNC • v2.0:</strong> Player XP, nicknames, featured champion, and corrections to newly linked leaderboard scores now sync to QUIZFORCE. Existing unlinked scores remain unchanged. Players receive XP edits when they open or return to the game online.</div>
       <div class="notice warning">🛠️ <strong>Question editor:</strong> Quiz questions are currently stored in the original QUIZFORCE game code, not the tracking database. Live question editing from HQ needs a separate game update; it is not part of this first release.</div>
       <div class="notice">ℹ️ <strong>Data note:</strong> XP and older test totals are synced from players' devices. Individual game details are available only for tests completed after tracking was installed. These are player-reported results, not anti-cheat verified.</div>
     </section>
@@ -162,6 +173,17 @@ async function exportCsv(type){notify('Preparing CSV export…');try{const rows=
 document.addEventListener('click',e=>{const btn=e.target.closest('[data-export]');if(btn)exportCsv(btn.dataset.export);});
 start();
 })();
+</script>
+
+<script>
+/* Installable PWA support. API and authentication continue to work online. */
+if ('serviceWorker' in navigator) {
+  window.addEventListener('load', () => {
+    navigator.serviceWorker.register('/sw.js').catch(error => {
+      console.warn('PWA service worker unavailable:', error);
+    });
+  });
+}
 </script>
 </body>
 </html>
