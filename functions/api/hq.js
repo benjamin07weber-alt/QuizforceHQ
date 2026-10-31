@@ -1,5 +1,5 @@
 /**
- * QUIZFORCE HQ v1 — private Cloudflare Pages Function.
+ * QUIZFORCE HQ v5 — private Cloudflare Pages Function.
  * Route: /api/hq. Bind existing D1 database as DB.
  * Set HQ_ADMIN_PASSWORD and HQ_SESSION_SECRET as Cloudflare Pages secrets.
  * Never put either secret in HTML, GitHub, or client JavaScript.
@@ -56,6 +56,7 @@ const formatPlayer = row => {
     overridden: Boolean(row.overridden),
     xpOverridden: row.xp_override !== null && row.xp_override !== undefined,
     nicknameOverridden: row.nickname_override !== null && row.nickname_override !== undefined,
+    avatar:row.avatar||null,color:row.color||null,frame:row.frame||null,title:row.title||null,
     updatedAt: row.updated_at || null,
   };
 };
@@ -143,6 +144,19 @@ async function ensureTables(db) {
     updated_at TEXT NOT NULL DEFAULT CURRENT_TIMESTAMP
   )`).run();
   await db.prepare('CREATE INDEX IF NOT EXISTS qfhq_questions_inbox ON qfhq_questions (player_id,inbox_hash,created_at)').run();
+  await db.prepare(`CREATE TABLE IF NOT EXISTS qfhq_cosmetic_profiles (
+    player_id TEXT PRIMARY KEY, nickname TEXT NOT NULL, key_hash TEXT NOT NULL,
+    avatar TEXT NOT NULL DEFAULT '🚀', color TEXT NOT NULL DEFAULT 'cyan',
+    frame TEXT NOT NULL DEFAULT 'none', title TEXT NOT NULL DEFAULT 'none',
+    favorite_badge TEXT NOT NULL DEFAULT 'none',
+    created_at TEXT NOT NULL DEFAULT CURRENT_TIMESTAMP,
+    updated_at TEXT NOT NULL DEFAULT CURRENT_TIMESTAMP
+  )`).run();
+  await db.prepare(`CREATE TABLE IF NOT EXISTS qfhq_awarded_badges (
+    player_id TEXT NOT NULL, badge_id TEXT NOT NULL,
+    awarded_at TEXT NOT NULL DEFAULT CURRENT_TIMESTAMP,
+    PRIMARY KEY (player_id,badge_id)
+  )`).run();
   tablesReady = true;
 }
 async function ensureThrottle(db) {
@@ -191,9 +205,10 @@ const PLAYER_CTE = `WITH perfect_deltas AS (
     MAX(0,p.perfect_runs+COALESCE(d.delta,0)) AS perfect_runs,
     COALESCE(o.hidden,0) AS hidden,
     CASE WHEN o.player_id IS NULL THEN 0 ELSE 1 END AS overridden,
-    o.xp_override, o.nickname_override, p.updated_at
+    o.xp_override, o.nickname_override, p.updated_at, c.avatar,c.color,c.frame,c.title
   FROM qfhq_players p
   LEFT JOIN qfhq_hq_overrides o ON o.player_id=p.player_id
+  LEFT JOIN qfhq_cosmetic_profiles c ON c.player_id=p.player_id
   LEFT JOIN perfect_deltas d ON d.player_id=p.player_id
 ) `;
 const VISIBLE_RUNS = `FROM qfhq_runs r
@@ -307,12 +322,15 @@ async function runs(db, url) {
 async function questions(db, url) {
   const status = url.searchParams.get('status') || 'all';
   if (!['all','open','answered','archived'].includes(status)) throw new Error('Invalid question status');
+  const category=url.searchParams.get('category')||'all';
+  if(!['all','Idea','Question','Bug report','Other'].includes(category))throw new Error('Invalid category');
   const search = (url.searchParams.get('search') || '').trim().slice(0, 60);
   const limit = Math.min(200, Math.max(1, parseInt(url.searchParams.get('limit') || '100',10) || 100));
   const offset = Math.min(100000, Math.max(0, parseInt(url.searchParams.get('offset') || '0',10) || 0));
   const conditions = [];
   const args = [];
   if (status !== 'all') { conditions.push('q.status=?'); args.push(status); }
+  if(category!=='all'){conditions.push('q.category=?');args.push(category);}
   if (search) {
     conditions.push(`(q.nickname LIKE ? ESCAPE '\\' OR q.message LIKE ? ESCAPE '\\')`);
     const term = `%${search.replace(/[\%_]/g,'\\$&')}%`;
@@ -332,8 +350,98 @@ async function questions(db, url) {
       category:r.category,message:r.message,reply:r.reply||null,status:r.status,
       createdAt:r.created_at,repliedAt:r.replied_at}))};
 }
+
+// v5 superpowers — all write operations below are authenticated by HQ's
+// existing session cookie. The game sees only the public announcement,
+// competition standings and awarded cosmetic badges.
+const BADGE_AWARDS=new Set(['founder','helper','star','champion']);
+const SUBJECT_CHOICES=new Set([...SUBJECTS,'All subjects']);
+function parseSetting(row){try{return row?.value?JSON.parse(row.value):null}catch{return null}}
+async function competitionBoard(db,competition){
+ if(!competition?.title||!competition?.start||!competition?.end)return [];
+ const sql=`WITH eligible AS (
+  SELECT r.player_id,r.completed_at,
+    COALESCE(c.correct_override,r.correct) AS correct,
+    COALESCE(c.total_override,r.total) AS total,
+    ROW_NUMBER() OVER (PARTITION BY r.player_id ORDER BY r.completed_at ASC,r.rowid ASC) AS attempt
+  FROM qfhq_runs r
+  LEFT JOIN qfhq_hq_run_corrections c ON c.run_id=r.run_id
+  LEFT JOIN qfhq_hq_overrides o ON o.player_id=r.player_id
+  WHERE (?='All subjects' OR r.subject=?) AND r.total>=10
+    AND datetime(r.completed_at)>=datetime(?) AND datetime(r.completed_at)<datetime(?)
+    AND COALESCE(o.hidden,0)=0
+ ) SELECT COALESCE(o.nickname_override,p.nickname) AS nickname,e.correct,e.total,e.completed_at
+ FROM eligible e JOIN qfhq_players p ON p.player_id=e.player_id
+ LEFT JOIN qfhq_hq_overrides o ON o.player_id=e.player_id
+ WHERE e.attempt=1 AND e.total>0
+ ORDER BY 1.0*e.correct/e.total DESC,e.correct DESC,e.completed_at ASC LIMIT 10`;
+ const rows=await list(db,sql,[competition.subject,competition.subject,competition.start,competition.end]);
+ return rows.map(r=>({nickname:r.nickname||'Player',correct:num(r.correct),total:num(r.total),completedAt:r.completed_at}));
+}
+async function superpowers(db){
+ const [a,c,awards,activity,bugReports]=await Promise.all([
+  one(db,"SELECT value FROM qfhq_hq_settings WHERE key='v5_announcement'"),
+  one(db,"SELECT value FROM qfhq_hq_settings WHERE key='v5_competition'"),
+  list(db,`SELECT b.player_id,b.badge_id,b.awarded_at,
+    COALESCE(o.nickname_override,p.nickname) AS nickname
+    FROM qfhq_awarded_badges b LEFT JOIN qfhq_players p ON p.player_id=b.player_id
+    LEFT JOIN qfhq_hq_overrides o ON o.player_id=b.player_id
+    ORDER BY b.awarded_at DESC LIMIT 25`),
+  one(db,`SELECT
+    SUM(CASE WHEN date(completed_at)=date('now') THEN 1 ELSE 0 END) AS today,
+    SUM(CASE WHEN date(completed_at)>=date('now','-6 days') THEN 1 ELSE 0 END) AS week
+    FROM qfhq_runs`),
+  one(db,"SELECT COUNT(*) AS count FROM qfhq_questions WHERE category='Bug report' AND status='open'")
+ ]);
+ const announcement=parseSetting(a),competition=parseSetting(c);
+ return {announcement,competition,leaderboard:await competitionBoard(db,competition),
+  awards:awards.map(r=>({playerId:r.player_id,nickname:r.nickname||'Player',badgeId:r.badge_id,awardedAt:r.awarded_at})),
+  stats:{today:num(activity?.today),week:num(activity?.week),bugs:num(bugReports?.count)}};
+}
+async function setSetting(db,key,value){
+ if(value===null)await db.prepare('DELETE FROM qfhq_hq_settings WHERE key=?').bind(key).run();
+ else await db.prepare(`INSERT INTO qfhq_hq_settings(key,value) VALUES (?,?)
+  ON CONFLICT(key) DO UPDATE SET value=excluded.value,updated_at=CURRENT_TIMESTAMP`)
+  .bind(key,JSON.stringify(value)).run();
+}
 async function admin(db, body) {
   const operation = body?.operation;
+  if(operation==='save_announcement'){
+    const message=typeof body.text==='string'?body.text.trim():'';
+    if(message.length<1||message.length>240||/https?:\/\/|www\.|[\w.+-]+@[\w.-]+\.[a-z]{2,}/i.test(message))
+      return fail('Announcement must be 1–240 characters, without links or email addresses.');
+    const expiry=body.expiresAt;
+    if(expiry!==null && (typeof expiry!=='string'||!Number.isFinite(Date.parse(expiry))||Date.parse(expiry)<=Date.now()||Date.parse(expiry)>Date.now()+90*86400000))
+      return fail('Choose an expiry in the next 90 days, or leave it blank.');
+    await setSetting(db,'v5_announcement',{text:message,expiresAt:expiry||null});
+    return reply({ok:true});
+  }
+  if(operation==='clear_announcement'){
+    await setSetting(db,'v5_announcement',null);return reply({ok:true});
+  }
+  if(operation==='save_competition'){
+    const title=typeof body.title==='string'?body.title.trim():'';
+    const subject=body.subject;
+    const start=body.start,end=body.end;
+    if(title.length<3||title.length>60||!SUBJECT_CHOICES.has(subject))return fail('Enter a title (3–60 characters) and subject.');
+    if(typeof start!=='string'||typeof end!=='string'||!Number.isFinite(Date.parse(start))||!Number.isFinite(Date.parse(end)))return fail('Enter valid start and end dates.');
+    const startMs=Date.parse(start),endMs=Date.parse(end);
+    if(startMs>=endMs||endMs-startMs>30*86400000||endMs<Date.now()-86400000||startMs>Date.now()+60*86400000)
+      return fail('Competition must last 1–30 days and be current or upcoming.');
+    await setSetting(db,'v5_competition',{title,subject,start:new Date(startMs).toISOString(),end:new Date(endMs).toISOString(),rule:'First eligible 10+ question test counts; IDK gives 0 marks.'});
+    return reply({ok:true});
+  }
+  if(operation==='clear_competition'){
+    await setSetting(db,'v5_competition',null);return reply({ok:true});
+  }
+  if(operation==='award_badge'||operation==='revoke_badge'){
+    if(!validId(body.playerId)||!BADGE_AWARDS.has(body.badgeId))return fail('Choose a valid player and special badge.');
+    const exists=await one(db,'SELECT player_id FROM qfhq_players WHERE player_id=?',[body.playerId]);
+    if(!exists)return fail('Player not found',404);
+    if(operation==='award_badge')await db.prepare('INSERT OR IGNORE INTO qfhq_awarded_badges(player_id,badge_id) VALUES (?,?)').bind(body.playerId,body.badgeId).run();
+    else await db.prepare('DELETE FROM qfhq_awarded_badges WHERE player_id=? AND badge_id=?').bind(body.playerId,body.badgeId).run();
+    return reply({ok:true});
+  }
   if (operation === 'feature' || operation === 'clear_feature') {
     if (operation === 'clear_feature') {
       await db.prepare("DELETE FROM qfhq_hq_settings WHERE key='featured_player'").run();
@@ -455,6 +563,7 @@ export async function onRequest({ request, env }) {
     if (action === 'players') return reply({ ok: true, data: await players(env.DB, url) });
     if (action === 'runs') return reply({ ok: true, data: await runs(env.DB, url) });
     if (action === 'questions') return reply({ ok: true, data: await questions(env.DB, url) });
+    if (action === 'superpowers') return reply({ ok: true, data: await superpowers(env.DB) });
     return fail('Unknown action', 404);
   } catch (error) {
     console.error('QUIZFORCE HQ API error', error);
