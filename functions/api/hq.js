@@ -5,7 +5,8 @@
  * Never put either secret in HTML, GitHub, or client JavaScript.
  *
  * This app does not change the original QUIZFORCE public scores table.
- * Admin corrections/overrides affect HQ reporting ONLY.
+ * Admin changes are read by the game via its read-only public sync endpoint.
+ * Only this authenticated HQ function may create/edit these changes.
  */
 const JSON_HEADERS = {
   'Content-Type': 'application/json; charset=utf-8',
@@ -117,11 +118,31 @@ async function ensureTables(db) {
   await db.prepare(`CREATE TABLE IF NOT EXISTS qfhq_hq_settings (
     key TEXT PRIMARY KEY, value TEXT, updated_at TEXT NOT NULL DEFAULT CURRENT_TIMESTAMP
   )`).run();
+  await db.prepare(`CREATE TABLE IF NOT EXISTS qfhq_hq_game_revisions (
+    player_id TEXT PRIMARY KEY, revision INTEGER NOT NULL DEFAULT 1,
+    updated_at TEXT NOT NULL DEFAULT CURRENT_TIMESTAMP
+  )`).run();
   await db.prepare(`CREATE TABLE IF NOT EXISTS qfhq_hq_run_corrections (
     run_id TEXT PRIMARY KEY, correct_override INTEGER NOT NULL,
     total_override INTEGER NOT NULL, xp_override INTEGER NOT NULL,
     updated_at TEXT NOT NULL DEFAULT CURRENT_TIMESTAMP
   )`).run();
+  // Private messages from QUIZFORCE players. This table is shared with the GAME
+  // /api/questions endpoint through the existing D1 DB binding.
+  await db.prepare(`CREATE TABLE IF NOT EXISTS qfhq_questions (
+    question_id TEXT PRIMARY KEY,
+    player_id TEXT NOT NULL,
+    inbox_hash TEXT NOT NULL,
+    nickname TEXT NOT NULL,
+    category TEXT NOT NULL,
+    message TEXT NOT NULL,
+    reply TEXT,
+    status TEXT NOT NULL DEFAULT 'open',
+    created_at TEXT NOT NULL DEFAULT CURRENT_TIMESTAMP,
+    replied_at TEXT,
+    updated_at TEXT NOT NULL DEFAULT CURRENT_TIMESTAMP
+  )`).run();
+  await db.prepare('CREATE INDEX IF NOT EXISTS qfhq_questions_inbox ON qfhq_questions (player_id,inbox_hash,created_at)').run();
   tablesReady = true;
 }
 async function ensureThrottle(db) {
@@ -283,6 +304,34 @@ async function runs(db, url) {
   ]);
   return { total: num(total?.count), rows: rows.map(runRow), offset, limit };
 }
+async function questions(db, url) {
+  const status = url.searchParams.get('status') || 'all';
+  if (!['all','open','answered','archived'].includes(status)) throw new Error('Invalid question status');
+  const search = (url.searchParams.get('search') || '').trim().slice(0, 60);
+  const limit = Math.min(200, Math.max(1, parseInt(url.searchParams.get('limit') || '100',10) || 100));
+  const offset = Math.min(100000, Math.max(0, parseInt(url.searchParams.get('offset') || '0',10) || 0));
+  const conditions = [];
+  const args = [];
+  if (status !== 'all') { conditions.push('q.status=?'); args.push(status); }
+  if (search) {
+    conditions.push(`(q.nickname LIKE ? ESCAPE '\\' OR q.message LIKE ? ESCAPE '\\')`);
+    const term = `%${search.replace(/[\%_]/g,'\\$&')}%`;
+    args.push(term,term);
+  }
+  const where = conditions.length ? 'WHERE '+conditions.join(' AND ') : '';
+  const [total, rows, unread] = await Promise.all([
+    one(db, `SELECT COUNT(*) AS count FROM qfhq_questions q ${where}`, args),
+    list(db, `SELECT q.question_id,q.player_id,q.nickname,q.category,q.message,q.reply,q.status,
+      q.created_at,q.replied_at
+      FROM qfhq_questions q ${where}
+      ORDER BY q.created_at DESC, q.rowid DESC LIMIT ? OFFSET ?`, [...args,limit,offset]),
+    one(db, "SELECT COUNT(*) AS count FROM qfhq_questions WHERE status='open'"),
+  ]);
+  return {total:num(total?.count),unanswered:num(unread?.count),offset,limit,
+    rows:rows.map(r=>({id:r.question_id,playerId:r.player_id,nickname:r.nickname,
+      category:r.category,message:r.message,reply:r.reply||null,status:r.status,
+      createdAt:r.created_at,repliedAt:r.replied_at}))};
+}
 async function admin(db, body) {
   const operation = body?.operation;
   if (operation === 'feature' || operation === 'clear_feature') {
@@ -296,6 +345,27 @@ async function admin(db, body) {
         ON CONFLICT(key) DO UPDATE SET value=excluded.value,updated_at=CURRENT_TIMESTAMP`).bind(body.playerId).run();
     }
     return reply({ ok: true });
+  }
+  if (operation === 'reply_question') {
+    if (!validId(body.questionId)) return fail('Invalid message ID');
+    const answer=typeof body.reply==='string'?body.reply.trim():'';
+    if (answer.length<1 || answer.length>800) return fail('Write a reply of 1–800 characters');
+    const existing=await one(db,'SELECT question_id FROM qfhq_questions WHERE question_id=?',[body.questionId]);
+    if (!existing) return fail('Message not found',404);
+    await db.prepare(`UPDATE qfhq_questions SET reply=?,status='answered',
+      replied_at=CURRENT_TIMESTAMP,updated_at=CURRENT_TIMESTAMP WHERE question_id=?`)
+      .bind(answer,body.questionId).run();
+    return reply({ok:true});
+  }
+  if (operation === 'archive_question' || operation === 'reopen_question') {
+    if (!validId(body.questionId)) return fail('Invalid message ID');
+    const existing=await one(db,'SELECT question_id FROM qfhq_questions WHERE question_id=?',[body.questionId]);
+    if (!existing) return fail('Message not found',404);
+    const sql=operation==='archive_question'
+      ? "UPDATE qfhq_questions SET status='archived',updated_at=CURRENT_TIMESTAMP WHERE question_id=?"
+      : "UPDATE qfhq_questions SET status=CASE WHEN reply IS NULL THEN 'open' ELSE 'answered' END,updated_at=CURRENT_TIMESTAMP WHERE question_id=?";
+    await db.prepare(sql).bind(body.questionId).run();
+    return reply({ok:true});
   }
   if (operation === 'save_player') {
     if (!validId(body.playerId)) return fail('Invalid player ID');
@@ -311,11 +381,18 @@ async function admin(db, body) {
       nickname_override=excluded.nickname_override,xp_override=excluded.xp_override,
       hidden=excluded.hidden,updated_at=CURRENT_TIMESTAMP`)
       .bind(body.playerId, nickname, xp, body.hidden ? 1 : 0).run();
+    // Increment revision so the player's game knows there is a new HQ edit.
+    await db.prepare(`INSERT INTO qfhq_hq_game_revisions (player_id,revision) VALUES (?,1)
+      ON CONFLICT(player_id) DO UPDATE SET revision=revision+1,updated_at=CURRENT_TIMESTAMP`)
+      .bind(body.playerId).run();
     return reply({ ok: true });
   }
   if (operation === 'reset_player') {
     if (!validId(body.playerId)) return fail('Invalid player ID');
     await db.prepare('DELETE FROM qfhq_hq_overrides WHERE player_id=?').bind(body.playerId).run();
+    await db.prepare(`INSERT INTO qfhq_hq_game_revisions (player_id,revision) VALUES (?,1)
+      ON CONFLICT(player_id) DO UPDATE SET revision=revision+1,updated_at=CURRENT_TIMESTAMP`)
+      .bind(body.playerId).run();
     return reply({ ok: true });
   }
   if (operation === 'correct_run') {
@@ -377,6 +454,7 @@ export async function onRequest({ request, env }) {
     if (action === 'dashboard') return reply({ ok: true, data: await dashboard(env.DB) });
     if (action === 'players') return reply({ ok: true, data: await players(env.DB, url) });
     if (action === 'runs') return reply({ ok: true, data: await runs(env.DB, url) });
+    if (action === 'questions') return reply({ ok: true, data: await questions(env.DB, url) });
     return fail('Unknown action', 404);
   } catch (error) {
     console.error('QUIZFORCE HQ API error', error);
