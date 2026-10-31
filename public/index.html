@@ -6,7 +6,7 @@
 <meta name="theme-color" content="#080e23">
 <meta name="robots" content="noindex,nofollow,noarchive">
 <meta http-equiv="Content-Security-Policy" content="default-src 'self'; connect-src 'self'; img-src 'self' data:; script-src 'self' 'unsafe-inline'; style-src 'self' 'unsafe-inline'; object-src 'none'; base-uri 'none'; form-action 'self'; frame-ancestors 'none'">
-<title>QUIZFORCE HQ v3.0 • Mission Control</title>
+<title>QUIZFORCE HQ v4.0 • Mission Control</title>
 <style>
 :root{--bg:#080e23;--bg2:#0c1530;--card:#121e3a;--card2:#162443;--border:#263657;--text:#f5f8ff;--muted:#9faecb;--cyan:#4cf0d9;--blue:#58aaff;--violet:#a18dff;--yellow:#ffda63;--pink:#ff8bba;--green:#8af1b0;--red:#ff8c97;--radius:20px}
 *{box-sizing:border-box}html{scroll-behavior:smooth}body{margin:0;background:var(--bg);color:var(--text);font-family:Inter,ui-sans-serif,-apple-system,BlinkMacSystemFont,"Segoe UI",sans-serif;font-size:14px;line-height:1.5}button,input,select{font:inherit}button{cursor:pointer}button:disabled{cursor:not-allowed;opacity:.5}a{color:var(--cyan)}[hidden]{display:none!important}::selection{background:#2d7779;color:white}
@@ -37,6 +37,25 @@
 .version-badge{display:inline-flex;align-items:center;gap:7px;padding:7px 12px;border-radius:999px;background:linear-gradient(110deg,#164d58,#253a69);border:1px solid #56f0df88;color:#d8fff7;font-size:12px;font-weight:950;letter-spacing:.7px;white-space:nowrap;box-shadow:0 0 19px #4cf0d91c}.version-badge .version-dot{height:8px;width:8px;border-radius:50%;background:#4cf0d9;box-shadow:0 0 0 4px #4cf0d926}.login-version{margin:14px auto 12px;justify-content:center;font-size:13px;padding:8px 14px}.top-version{margin-top:8px}.hero-version{color:#eafffa;border-color:#4cf0d966;background:#1a61576b}
 @media(max-width:600px){.top-version{font-size:10px;padding:5px 8px;margin-top:7px}.version-badge .version-dot{height:6px;width:6px}.login-version{font-size:12px}}
 </style>
+<style id="qf-questions-styles">
+.qf-unread-count{display:inline-block;margin-left:4px;padding:2px 7px;border-radius:20px;background:#ffda63;color:#0c1830;font-size:11px;font-weight:950}
+.qf-questions-summary{color:#b1d6e3;font-size:13px;font-weight:750;margin:4px 0 15px}
+.qf-questions-groups{display:grid;gap:18px}
+.qf-questions-group{border:1px solid #2c4b65;background:linear-gradient(145deg,#122744,#10203a);border-radius:17px;padding:17px;min-width:0}
+.qf-questions-group-head{display:flex;align-items:center;justify-content:space-between;gap:10px;margin-bottom:13px;padding-bottom:12px;border-bottom:1px solid #2d4965}
+.qf-questions-group-head strong{font-size:17px;color:#8cf7e9}
+.qf-questions-group-head small{color:#91b4c5}
+.qf-question-card{background:#101d35;border:1px solid #314965;border-radius:13px;padding:14px;margin:12px 0;overflow-wrap:anywhere}
+.qf-question-top{display:flex;justify-content:space-between;align-items:center;gap:9px;flex-wrap:wrap}
+.qf-question-pill{border:1px solid #6ca2ba;border-radius:30px;padding:3px 9px;font-size:11px;color:#c4faff;font-weight:850}
+.qf-question-pill.answered{border-color:#5cae89;color:#a6f2c4}.qf-question-pill.archived{border-color:#826ca7;color:#c8baf1}
+.qf-question-text{font-size:14px;line-height:1.65;color:#f0f8ff;white-space:pre-wrap;margin:12px 0}
+.qf-question-reply{border-left:3px solid #ffda63;padding:10px 13px;margin:10px 0;background:#1c304c;border-radius:0 9px 9px 0;white-space:pre-wrap}
+.qf-question-actions{display:flex;gap:8px;flex-wrap:wrap;margin-top:12px}
+.qf-question-actions .btn{min-height:36px;padding:7px 12px;font-size:12px}
+.qf-question-reply-box{display:block;width:100%;min-height:135px;resize:vertical;background:#0c1831;border:1px solid #466584;border-radius:10px;color:white;padding:11px;font:inherit}
+@media(max-width:600px){.mobile-bar{grid-template-columns:repeat(5,minmax(0,1fr))}.mobile-btn{font-size:9px}.mobile-btn span{font-size:19px}.qf-questions-group{padding:12px}.qf-question-card{padding:11px}}
+</style>
 <!-- QUIZFORCE HQ PWA • private mission control home-screen app -->
 <meta name="apple-mobile-web-app-capable" content="yes">
 <meta name="apple-mobile-web-app-status-bar-style" content="black-translucent">
@@ -54,7 +73,7 @@
     <div class="login-icon">⚡</div>
     <div class="overline">TOP SECRET • ADMIN ONLY</div>
     <h1>QUIZFORCE <span style="color:var(--cyan)">HQ</span></h1>
-    <div class="version-badge login-version"><span class="version-dot"></span> VERSION 3.0 • LIVE SYNC</div>
+    <div class="version-badge login-version"><span class="version-dot"></span> VERSION 4.0 • MESSAGES</div>
     <p>Your private mission control for the QUIZFORCE universe.</p>
     <form id="loginForm">
       <label for="password">🔐 HQ password</label>
@@ -76,14 +95,15 @@
       <button class="nav-btn active" data-view="overview"><span class="nav-emoji">🛰️</span><span class="nav-text">Overview</span></button>
       <button class="nav-btn" data-view="players"><span class="nav-emoji">👨‍🚀</span><span class="nav-text">Players</span></button>
       <button class="nav-btn" data-view="games"><span class="nav-emoji">🎮</span><span class="nav-text">Games &amp; scores</span></button>
+      <button class="nav-btn" data-view="questions"><span class="nav-emoji">💬</span><span class="nav-text">Questions <span class="qf-unread-count" id="qfQuestionsBadge" hidden></span></span></button>
       <button class="nav-btn" data-view="admin"><span class="nav-emoji">🛡️</span><span class="nav-text">Admin controls</span></button>
     </nav>
-    <div class="sidebar-bottom"><div class="secure-pill"><span class="dot"></span> PRIVATE &amp; SECURE</div><button class="side-action" id="logoutBtn">🚪 <span>Sign out</span></button><div class="side-note">QUIZFORCE HQ • v3.0 • LIVE SYNC</div></div>
+    <div class="sidebar-bottom"><div class="secure-pill"><span class="dot"></span> PRIVATE &amp; SECURE</div><button class="side-action" id="logoutBtn">🚪 <span>Sign out</span></button><div class="side-note">QUIZFORCE HQ • v4.0 • MESSAGES</div></div>
   </aside>
   <main class="main">
-    <header class="topbar"><div><div class="eyebrow">🌍 Worldwide intelligence</div><h1 id="pageTitle">Mission overview</h1><div class="version-badge top-version"><span class="version-dot"></span> HQ v3.0 • LIVE SYNC</div></div><div class="top-right"><div class="update-note" id="lastUpdate">Loading data…</div><button class="icon-btn" id="refreshBtn" title="Refresh data" aria-label="Refresh data">↻ Refresh</button><div class="avatar">👑</div></div></header>
+    <header class="topbar"><div><div class="eyebrow">🌍 Worldwide intelligence</div><h1 id="pageTitle">Mission overview</h1><div class="version-badge top-version"><span class="version-dot"></span> HQ v4.0 • MESSAGES</div></div><div class="top-right"><div class="update-note" id="lastUpdate">Loading data…</div><button class="icon-btn" id="refreshBtn" title="Refresh data" aria-label="Refresh data">↻ Refresh</button><div class="avatar">👑</div></div></header>
     <section class="view active" id="view-overview">
-      <div class="hero"><div class="hero-grid"><div><span class="hero-tag hero-version">⚡ QUIZFORCE HQ v3.0 • LIVE SYNC</span><h2>Every quiz. Every player.<br><em>One epic HQ.</em></h2><p>Watch the QUIZFORCE universe grow, celebrate your top players, and see every completed game—all in one place.</p></div><div class="hero-badge"><div class="crown">🏆</div><div class="mini" id="champLabel">TOP XP PLAYER</div><div class="champ-name" id="champName">Loading…</div><div class="champ-xp" id="champXP">—</div></div></div></div>
+      <div class="hero"><div class="hero-grid"><div><span class="hero-tag hero-version">⚡ QUIZFORCE HQ v4.0 • MESSAGES</span><h2>Every quiz. Every player.<br><em>One epic HQ.</em></h2><p>Watch the QUIZFORCE universe grow, celebrate your top players, and see every completed game—all in one place.</p></div><div class="hero-badge"><div class="crown">🏆</div><div class="mini" id="champLabel">TOP XP PLAYER</div><div class="champ-name" id="champName">Loading…</div><div class="champ-xp" id="champXP">—</div></div></div></div>
       <div class="metrics" id="metrics"><div class="empty">Loading worldwide stats…</div></div>
       <div class="grid-two">
         <div class="panel"><div class="panel-head"><div><h3>📈 Game activity</h3><p>Completed tests in the last 14 days</p></div><span class="panel-icon">⚡</span></div><div class="chart" id="activityChart"></div><div class="chart-axis"><span id="chartFrom">—</span><span>UTC dates</span><span id="chartTo">—</span></div><div class="activity-footer"><span>Tracked games this fortnight</span><strong id="fortnightTotal">—</strong></div></div>
@@ -96,6 +116,14 @@
     </section>
     <section class="view" id="view-players"><div class="section-intro"><div><h2>👨‍🚀 Worldwide players</h2><p>See XP, total games, perfect scores and Galactic ranks. Different submitted nicknames on one device create separate players; returning to the same nickname reuses that player.</p></div><button class="btn secondary" data-export="players">⬇ Export CSV</button></div><div class="filter-bar"><input class="field search" id="playerSearch" placeholder="🔎 Search nicknames…" aria-label="Search player nicknames"><select class="select" id="playerSort" aria-label="Sort players"><option value="xp">Most XP</option><option value="games">Most games</option><option value="perfect">Most perfect scores</option><option value="recent">Recently updated</option></select><label class="checkbox"><input type="checkbox" id="showHidden"> Show hidden players</label></div><div class="table-wrap"><table><thead><tr><th>Player</th><th>XP</th><th>Games</th><th>Perfect</th><th>Rank</th><th>Manage</th></tr></thead><tbody id="playerRows"></tbody></table></div><div class="pagination"><span id="playerCount">—</span><button class="btn secondary" id="morePlayers" hidden>Load more players ↓</button></div></section>
     <section class="view" id="view-games"><div class="section-intro"><div><h2>🎮 Every completed game</h2><p>All tracked scores, including those never posted to the leaderboard.</p></div><button class="btn secondary" data-export="games">⬇ Export CSV</button></div><div class="filter-bar"><select class="select" id="gameSubject" aria-label="Filter subject"><option value="">All subjects</option><option>Mathematics</option><option>English</option><option>Afrikaans</option><option>Natural Sciences</option><option>Social Sciences</option></select><select class="select" id="gameDifficulty" aria-label="Filter difficulty"><option value="">All difficulties</option><option value="easy">Easy</option><option value="medium">Medium</option><option value="hard">Hard</option></select><button class="btn secondary" id="clearGameFilters">Clear filters</button></div><div class="table-wrap"><table><thead><tr><th>When</th><th>Player</th><th>Subject</th><th>Difficulty</th><th>Score</th><th>Earned XP</th><th>Manage</th></tr></thead><tbody id="gameRows"></tbody></table></div><div class="pagination"><span id="gameCount">—</span><button class="btn secondary" id="moreGames" hidden>Load more games ↓</button></div></section>
+    <section class="view" id="view-questions">
+      <div class="section-intro"><div><h2>💬 Questions &amp; ideas</h2><p>Private messages from QUIZFORCE players. Grouped by nickname, so you can reply to each person!</p></div><button class="btn secondary" type="button" id="qfQuestionsRefresh">↻ Refresh inbox</button></div>
+      <div class="filter-bar"><input class="field search" id="qfQuestionsSearch" placeholder="🔎 Search nicknames or messages…" aria-label="Search messages"><select class="select" id="qfQuestionsFilter" aria-label="Filter messages"><option value="all">All messages</option><option value="open">⏳ Unanswered</option><option value="answered">✅ Answered</option><option value="archived">📦 Archived</option></select></div>
+      <div class="qf-questions-summary" id="qfQuestionsSummary">Loading your messages…</div>
+      <div id="qfQuestionsGroups" class="qf-questions-groups"><div class="empty">Loading questions…</div></div>
+      <div class="pagination"><span id="qfQuestionsCount">—</span><button class="btn secondary" type="button" id="qfQuestionsMore" hidden>Load more messages ↓</button></div>
+      <div class="notice">🔐 <strong>Private inbox:</strong> Only you can read everyone's messages in HQ. Players can read replies only through their saved browser inbox key. Encourage nicknames, not real names or contact details.</div>
+    </section>
     <section class="view" id="view-admin">
       <div class="admin-hero"><div class="shield">🛡️</div><div><h2>Captain's control room</h2><p>Private tools for managing QUIZFORCE HQ statistics. Only someone with your HQ password can use these controls.</p></div></div>
       <div class="admin-grid">
@@ -112,7 +140,7 @@
     <div class="footer-note">⚡ QUIZFORCE HQ • Private mission control • All times shown in your device's local time • No player locations are collected</div>
   </main>
 </div>
-<nav class="mobile-bar" id="mobileBar" hidden aria-label="Mobile navigation"><button class="mobile-btn active" data-view="overview"><span>🛰️</span>Overview</button><button class="mobile-btn" data-view="players"><span>👨‍🚀</span>Players</button><button class="mobile-btn" data-view="games"><span>🎮</span>Games</button><button class="mobile-btn" data-view="admin"><span>🛡️</span>Admin</button></nav>
+<nav class="mobile-bar" id="mobileBar" hidden aria-label="Mobile navigation"><button class="mobile-btn active" data-view="overview"><span>🛰️</span>Overview</button><button class="mobile-btn" data-view="players"><span>👨‍🚀</span>Players</button><button class="mobile-btn" data-view="games"><span>🎮</span>Games</button><button class="mobile-btn" data-view="questions"><span>💬</span>Questions</button><button class="mobile-btn" data-view="admin"><span>🛡️</span>Admin</button></nav>
 <div class="modal-backdrop" id="modalBackdrop" hidden><div class="modal" role="dialog" aria-modal="true" aria-labelledby="modalTitle"><div id="modalContent"></div></div></div>
 <div class="toast" id="toast" role="status" hidden></div>
 <script>
@@ -124,8 +152,8 @@ const nf = new Intl.NumberFormat('en-ZA');
 const fmt = value => nf.format(Number(value)||0);
 const short = value => {const n=Number(value)||0;return n>=1000000?(n/1000000).toFixed(1)+'m':n>=10000?(n/1000).toFixed(1)+'k':fmt(n)};
 const when = text => {if(!text)return '—';const s=String(text);const d=new Date(s.includes('T')?s:s.replace(' ','T')+'Z');return Number.isNaN(d.getTime())?s:d.toLocaleString('en-ZA',{day:'numeric',month:'short',hour:'2-digit',minute:'2-digit'});};
-const state={view:'overview',dashboard:null,leader:'xp',players:[],playersTotal:0,playersOffset:0,runs:[],runsTotal:0,runsOffset:0,busy:false};
-const title={overview:'Mission overview',players:'Worldwide players',games:'Games & scores',admin:'Admin controls'};
+const state={view:'overview',dashboard:null,leader:'xp',players:[],playersTotal:0,playersOffset:0,runs:[],runsTotal:0,runsOffset:0,questions:[],questionsTotal:0,questionsOffset:0,questionsUnanswered:0,busy:false,questionsBusy:false};
+const title={overview:'Mission overview',players:'Worldwide players',games:'Games & scores',questions:'Questions & ideas',admin:'Admin controls'};
 let toastTimer;
 function notify(message,error=false){const el=$('toast');el.textContent=message;el.className='toast'+(error?' error':'');el.hidden=false;clearTimeout(toastTimer);toastTimer=setTimeout(()=>el.hidden=true,4200);}
 async function api(action,opts={}){
@@ -151,10 +179,10 @@ passwordToggle.addEventListener('click',()=>setPasswordVisibility(passwordInput.
 $('loginForm').addEventListener('submit',async e=>{e.preventDefault();const btn=$('loginBtn');btn.disabled=true;btn.textContent='🔐 Checking…';$('loginError').textContent='';try{await api('login',{body:{action:'login',password:$('password').value}});$('password').value='';setPasswordVisibility(false);showApp();await refreshAll();notify('Welcome to mission control! ⚡');}catch(error){$('loginError').textContent=error.message;}finally{btn.disabled=false;btn.textContent='🚀 Enter mission control';}});
 async function logout(){try{await api('logout',{body:{action:'logout'}});}catch{}state.dashboard=null;showGate();$('password').value='';setPasswordVisibility(false);notify('Signed out securely.');}
 $('logoutBtn').addEventListener('click',logout);
-function navigate(view){if(!title[view])return;state.view=view;document.querySelectorAll('.view').forEach(el=>el.classList.toggle('active',el.id==='view-'+view));document.querySelectorAll('[data-view]').forEach(el=>el.classList.toggle('active',el.dataset.view===view));$('pageTitle').textContent=title[view];window.scrollTo({top:0,behavior:'smooth'});if(view==='players'&&!state.players.length)loadPlayers(true);if(view==='games'&&!state.runs.length)loadRuns(true);if(view==='admin')renderAdmin();}
+function navigate(view){if(!title[view])return;state.view=view;document.querySelectorAll('.view').forEach(el=>el.classList.toggle('active',el.id==='view-'+view));document.querySelectorAll('[data-view]').forEach(el=>el.classList.toggle('active',el.dataset.view===view));$('pageTitle').textContent=title[view];window.scrollTo({top:0,behavior:'smooth'});if(view==='players'&&!state.players.length)loadPlayers(true);if(view==='games'&&!state.runs.length)loadRuns(true);if(view==='questions')loadQuestions(true);if(view==='admin')renderAdmin();}
 document.addEventListener('click',e=>{const nav=e.target.closest('[data-view]');if(nav){navigate(nav.dataset.view);return;}const jump=e.target.closest('[data-jump]');if(jump){navigate(jump.dataset.jump);return;}});
 $('refreshBtn').addEventListener('click',()=>refreshAll(true));
-async function refreshAll(announce=false){const btn=$('refreshBtn');btn.disabled=true;try{const result=await api('dashboard');state.dashboard=result.data;renderDashboard();$('lastUpdate').textContent='Updated '+new Date(result.data.updatedAt).toLocaleTimeString('en-ZA',{hour:'2-digit',minute:'2-digit'});if(state.view==='players')await loadPlayers(true);if(state.view==='games')await loadRuns(true);if(announce)notify('Worldwide stats refreshed ⚡');}catch(error){notify(error.message,true);}finally{btn.disabled=false;}}
+async function refreshAll(announce=false){const btn=$('refreshBtn');btn.disabled=true;try{const result=await api('dashboard');state.dashboard=result.data;renderDashboard();$('lastUpdate').textContent='Updated '+new Date(result.data.updatedAt).toLocaleTimeString('en-ZA',{hour:'2-digit',minute:'2-digit'});if(state.view==='players')await loadPlayers(true);if(state.view==='games')await loadRuns(true);if(state.view==='questions')await loadQuestions(true);if(announce)notify('Worldwide stats refreshed ⚡');}catch(error){notify(error.message,true);}finally{btn.disabled=false;}}
 function renderDashboard(){const d=state.dashboard;if(!d)return;const o=d.overview;
   const cards=[['👨‍🚀','TOTAL PLAYERS',o.players,'Separate nickname profiles','#4cf0d9'],['🎮','GAMES COMPLETED',o.games,'Includes older synced totals','#58aaff'],['💯','PERFECT SCORES',o.perfect,'Player-reported total','#ffda63'],['⚡','TOTAL XP',o.xp,'Across visible players','#a18dff'],['📡','TRACKED GAMES',o.tracked,'Detailed game records','#ff8bba']];
   $('metrics').innerHTML=cards.map(c=>`<div class="metric" style="--accent:${c[4]}"><div class="metric-icon">${c[0]}</div><div class="metric-label">${c[1]}</div><div class="metric-value">${short(c[2])}</div><div class="metric-caption">${c[3]}</div></div>`).join('');
@@ -173,6 +201,76 @@ function renderPlayers(){const rows=state.players;$('playerRows').innerHTML=rows
 let searchTimer;$('playerSearch').addEventListener('input',()=>{clearTimeout(searchTimer);searchTimer=setTimeout(()=>loadPlayers(true),320);});$('playerSort').addEventListener('change',()=>loadPlayers(true));$('showHidden').addEventListener('change',()=>loadPlayers(true));$('morePlayers').addEventListener('click',()=>loadPlayers());
 async function loadRuns(reset=false){if(state.busy)return;state.busy=true;if(reset){state.runs=[];state.runsOffset=0;}$('gameRows').classList.add('loading');try{const result=await api('runs',{params:{subject:$('gameSubject').value,difficulty:$('gameDifficulty').value,offset:state.runsOffset,limit:30}});state.runs.push(...result.data.rows);state.runsOffset+=result.data.rows.length;state.runsTotal=result.data.total;renderRuns();}catch(error){notify(error.message,true);}finally{state.busy=false;$('gameRows').classList.remove('loading');}}
 function renderRuns(){const rows=state.runs;$('gameRows').innerHTML=rows.length?rows.map(r=>`<tr><td class="tiny-muted">${esc(when(r.completedAt))}</td><td><strong>${esc(r.nickname)}</strong></td><td>${esc(r.subject)}</td><td><span class="difficulty ${esc(r.difficulty)}">${esc(r.difficulty)}</span>${r.speedrun?' ⏱️':''}</td><td><span class="score-pill ${r.correct===r.total?'perfect':''}">${r.correct}/${r.total}</span>${r.corrected?' <span class="corrected">EDITED</span>':''}</td><td>+${fmt(r.earnedXp)}</td><td><button class="table-action" data-edit-run="${esc(r.runId)}">Correct ✎</button></td></tr>`).join(''):'<tr><td colspan="7" class="empty">No games match these filters. 🎮</td></tr>';$('gameCount').textContent=`Showing ${fmt(rows.length)} of ${fmt(state.runsTotal)} games`;$('moreGames').hidden=rows.length>=state.runsTotal;}
+async function loadQuestions(reset=false){
+ if(state.questionsBusy)return;
+ state.questionsBusy=true;
+ if(reset){state.questions=[];state.questionsOffset=0;}
+ const host=$('qfQuestionsGroups');host.classList.add('loading');
+ try{
+  const result=await api('questions',{params:{status:$('qfQuestionsFilter').value,
+   search:$('qfQuestionsSearch').value,offset:state.questionsOffset,limit:100}});
+  state.questions.push(...result.data.rows);
+  state.questionsOffset+=result.data.rows.length;
+  state.questionsTotal=result.data.total;
+  state.questionsUnanswered=result.data.unanswered;
+  renderQuestions();
+ }catch(error){notify(error.message,true);host.innerHTML='<div class="empty">Could not load messages. Tap Refresh inbox to try again.</div>';}
+ finally{state.questionsBusy=false;host.classList.remove('loading');}
+}
+function renderQuestions(){
+ const rows=state.questions;
+ $('qfQuestionsBadge').hidden=state.questionsUnanswered===0;
+ $('qfQuestionsBadge').textContent=state.questionsUnanswered>99?'99+':String(state.questionsUnanswered);
+ $('qfQuestionsSummary').textContent=`📬 ${fmt(state.questionsUnanswered)} unanswered · ${fmt(state.questionsTotal)} messages matching this filter`;
+ $('qfQuestionsCount').textContent=`Showing ${fmt(rows.length)} of ${fmt(state.questionsTotal)} messages`;
+ $('qfQuestionsMore').hidden=rows.length>=state.questionsTotal;
+ const groups=new Map();
+ rows.forEach(q=>{
+  const id=q.playerId;
+  if(!groups.has(id))groups.set(id,{name:q.nickname,id,rows:[]});
+  groups.get(id).rows.push(q);
+ });
+ $('qfQuestionsGroups').innerHTML=groups.size?[...groups.values()].map(group=>{
+  const open=group.rows.filter(q=>q.status==='open').length;
+  return `<div class="qf-questions-group"><div class="qf-questions-group-head"><div><strong>👨‍🚀 ${esc(group.name)}</strong><br><small>Player ${esc(group.id.slice(0,8))} · ${group.rows.length} message${group.rows.length===1?'':'s'}</small></div><span class="qf-question-pill">${open} awaiting reply</span></div>${group.rows.map(q=>`
+  <article class="qf-question-card">
+    <div class="qf-question-top"><span class="qf-question-pill ${esc(q.status)}">${q.status==='open'?'⏳ Unanswered':q.status==='answered'?'✅ Answered':'📦 Archived'}</span><span class="tiny-muted">${esc(q.category)} · ${esc(when(q.createdAt))}</span></div>
+    <p class="qf-question-text">${esc(q.message)}</p>
+    ${q.reply?`<div class="qf-question-reply"><strong>⚡ Your reply:</strong><br>${esc(q.reply)}</div>`:''}
+    <div class="qf-question-actions"><button type="button" class="btn" data-reply-question="${esc(q.id)}">${q.reply?'✏️ Edit reply':'💬 Reply to player'}</button>
+      ${q.status==='archived'?`<button type="button" class="btn secondary" data-reopen-question="${esc(q.id)}">↩ Reopen</button>`:`<button type="button" class="btn ghost" data-archive-question="${esc(q.id)}">📦 Archive</button>`}
+    </div>
+  </article>`).join('')}</div>`;
+ }).join(''):'<div class="empty">📭 No messages yet. When a player sends an idea, it will appear here!</div>';
+}
+$('qfQuestionsRefresh').addEventListener('click',()=>loadQuestions(true));
+$('qfQuestionsFilter').addEventListener('change',()=>loadQuestions(true));
+let questionSearchTimer;
+$('qfQuestionsSearch').addEventListener('input',()=>{clearTimeout(questionSearchTimer);questionSearchTimer=setTimeout(()=>loadQuestions(true),300);});
+$('qfQuestionsMore').addEventListener('click',()=>loadQuestions(false));
+document.addEventListener('click',e=>{
+ const button=e.target.closest('[data-reply-question],[data-archive-question],[data-reopen-question]');
+ if(!button)return;
+ const id=button.dataset.replyQuestion||button.dataset.archiveQuestion||button.dataset.reopenQuestion;
+ const q=state.questions.find(item=>item.id===id);
+ if(!q)return;
+ if(button.hasAttribute('data-reply-question')){
+  openModal(`<h2 id="modalTitle">💬 Reply to ${esc(q.nickname)}</h2><p>${esc(q.category)} · ${esc(q.message.slice(0,180))}</p>
+    <form id="qfReplyForm"><label for="qfReplyText">Your reply (only this player can see it)</label>
+    <textarea id="qfReplyText" class="qf-question-reply-box" maxlength="800" required placeholder="Thanks for the idea!">${esc(q.reply||'')}</textarea>
+    <div class="modal-actions"><button type="button" class="btn ghost" data-close-modal>Cancel</button><button type="submit" class="btn">📨 Send reply</button></div></form>`);
+  $('qfReplyForm').addEventListener('submit',async event=>{
+   event.preventDefault();const replyText=$('qfReplyText').value.trim();
+   if(!replyText){notify('Write a reply first.',true);return;}
+   await doAdmin({operation:'reply_question',questionId:id,reply:replyText});
+  });
+ }else if(button.hasAttribute('data-archive-question')){
+  if(confirm('Archive this message? You can reopen it later.'))void doAdmin({operation:'archive_question',questionId:id});
+ }else if(button.hasAttribute('data-reopen-question')){
+  void doAdmin({operation:'reopen_question',questionId:id});
+ }
+});
+
 $('gameSubject').addEventListener('change',()=>loadRuns(true));$('gameDifficulty').addEventListener('change',()=>loadRuns(true));$('clearGameFilters').addEventListener('click',()=>{$('gameSubject').value='';$('gameDifficulty').value='';loadRuns(true);});$('moreGames').addEventListener('click',()=>loadRuns());
 function renderAdmin(){const p=state.dashboard?.featured;$('featuredCurrent').textContent=p?`👑 ${p.nickname} • ${fmt(p.xp)} XP`:'🏆 Automatic top XP player';}
 function openModal(content){$('modalContent').innerHTML=content;$('modalBackdrop').hidden=false;document.body.style.overflow='hidden';const focus=$('modalContent').querySelector('input,button');focus?.focus();}
@@ -188,7 +286,7 @@ function editRun(id){const r=state.runs.find(r=>r.runId===id);if(!r)return;openM
   $('resetRun')?.addEventListener('click',()=>{if(confirm('Restore this game’s original tracked score?'))doAdmin({operation:'reset_run',runId:id});});
 }
 document.addEventListener('click',e=>{const p=e.target.closest('[data-edit-player]');if(p){editPlayer(p.dataset.editPlayer);return;}const r=e.target.closest('[data-edit-run]');if(r){editRun(r.dataset.editRun);return;}});
-async function doAdmin(payload){const buttons=[...$('modalContent').querySelectorAll('button')];buttons.forEach(b=>b.disabled=true);try{await api('hq-admin',{body:{action:'admin',...payload}});closeModal();await refreshAll();state.players=[];state.runs=[];if(state.view==='players')await loadPlayers(true);if(state.view==='games')await loadRuns(true);notify('HQ changes saved! ⚡');}catch(error){notify(error.message,true);buttons.forEach(b=>b.disabled=false);}}
+async function doAdmin(payload){const buttons=[...$('modalContent').querySelectorAll('button')];buttons.forEach(b=>b.disabled=true);try{await api('hq-admin',{body:{action:'admin',...payload}});closeModal();await refreshAll();state.players=[];state.runs=[];if(state.view==='players')await loadPlayers(true);if(state.view==='games')await loadRuns(true);if(state.view==='questions')await loadQuestions(true);notify('HQ changes saved! ⚡');}catch(error){notify(error.message,true);buttons.forEach(b=>b.disabled=false);}}
 $('chooseChampion').addEventListener('click',async()=>{try{const result=await api('players',{params:{limit:100,sort:'xp'}});const rows=result.data.rows;openModal(`<h2 id="modalTitle">👑 Choose featured champion</h2><p>Select the player to spotlight in HQ. This highlights the champion in QUIZFORCE too, without falsifying score rankings.</p><div style="max-height:310px;overflow:auto;display:grid;gap:8px">${rows.length?rows.map(p=>`<button type="button" class="btn secondary" style="justify-content:space-between" data-choose-player="${esc(p.playerId)}"><span>${esc(p.nickname)}</span><span>${fmt(p.xp)} XP</span></button>`).join(''):'<div class="empty">No players yet.</div>'}</div><div class="modal-actions"><button class="btn ghost" data-close-modal>Cancel</button></div>`);}catch(error){notify(error.message,true);}});
 document.addEventListener('click',e=>{const p=e.target.closest('[data-choose-player]');if(p)doAdmin({operation:'feature',playerId:p.dataset.choosePlayer});});
 $('clearChampion').addEventListener('click',()=>doAdmin({operation:'clear_feature'}));
