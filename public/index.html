@@ -6,7 +6,7 @@
 <meta name="theme-color" content="#080e23">
 <meta name="robots" content="noindex,nofollow,noarchive">
 <meta http-equiv="Content-Security-Policy" content="default-src 'self'; connect-src 'self'; img-src 'self' data:; script-src 'self' 'unsafe-inline'; style-src 'self' 'unsafe-inline'; object-src 'none'; base-uri 'none'; form-action 'self'; frame-ancestors 'none'">
-<title>QUIZFORCE HQ v4.0 • Mission Control</title>
+<title>QUIZFORCE HQ v5.0 • Mission Control</title>
 <style>
 :root{--bg:#080e23;--bg2:#0c1530;--card:#121e3a;--card2:#162443;--border:#263657;--text:#f5f8ff;--muted:#9faecb;--cyan:#4cf0d9;--blue:#58aaff;--violet:#a18dff;--yellow:#ffda63;--pink:#ff8bba;--green:#8af1b0;--red:#ff8c97;--radius:20px}
 *{box-sizing:border-box}html{scroll-behavior:smooth}body{margin:0;background:var(--bg);color:var(--text);font-family:Inter,ui-sans-serif,-apple-system,BlinkMacSystemFont,"Segoe UI",sans-serif;font-size:14px;line-height:1.5}button,input,select{font:inherit}button{cursor:pointer}button:disabled{cursor:not-allowed;opacity:.5}a{color:var(--cyan)}[hidden]{display:none!important}::selection{background:#2d7779;color:white}
@@ -36,6 +36,9 @@
 @media(prefers-reduced-motion:reduce){*{animation:none!important;transition:none!important;scroll-behavior:auto!important}}
 .version-badge{display:inline-flex;align-items:center;gap:7px;padding:7px 12px;border-radius:999px;background:linear-gradient(110deg,#164d58,#253a69);border:1px solid #56f0df88;color:#d8fff7;font-size:12px;font-weight:950;letter-spacing:.7px;white-space:nowrap;box-shadow:0 0 19px #4cf0d91c}.version-badge .version-dot{height:8px;width:8px;border-radius:50%;background:#4cf0d9;box-shadow:0 0 0 4px #4cf0d926}.login-version{margin:14px auto 12px;justify-content:center;font-size:13px;padding:8px 14px}.top-version{margin-top:8px}.hero-version{color:#eafffa;border-color:#4cf0d966;background:#1a61576b}
 @media(max-width:600px){.top-version{font-size:10px;padding:5px 8px;margin-top:7px}.version-badge .version-dot{height:6px;width:6px}.login-version{font-size:12px}}
+
+/* v5 Superpowers */
+.v5-metrics{display:grid;grid-template-columns:repeat(3,minmax(0,1fr));gap:14px;margin:16px 0 22px}.v5-metric{padding:22px;display:grid;gap:8px}.v5-metric strong{font-size:35px;color:var(--cyan)}.v5-metric small{color:var(--muted)}.v5-metric .btn{justify-self:start}.v5-panel{padding:22px;margin-bottom:18px}.v5-panel h3{margin:0 0 9px}.v5-panel p{color:var(--muted)}.v5-panel form{display:grid;gap:9px}.v5-panel input,.v5-panel select,.v5-panel textarea{width:100%;border:1px solid var(--border);background:#0c1832;color:#f5f8ff;padding:11px;border-radius:10px;min-height:43px;font:inherit}.v5-panel textarea{min-height:95px;resize:vertical}.v5-panel label{font-weight:700;color:#d9e6ff}.v5-current{margin-top:15px;border:1px solid #345e66;background:#122f39;border-radius:12px;padding:13px;white-space:pre-wrap}.v5-board{margin-top:12px}.v5-score{display:flex;align-items:center;justify-content:space-between;gap:12px;padding:11px 0;border-bottom:1px solid #ffffff1a}.v5-score .btn{font-size:11px;padding:6px 10px}@media(max-width:700px){.v5-metrics{grid-template-columns:1fr}}
 </style>
 <style id="qf-questions-styles">
 .qf-unread-count{display:inline-block;margin-left:4px;padding:2px 7px;border-radius:20px;background:#ffda63;color:#0c1830;font-size:11px;font-weight:950}
@@ -96,6 +99,7 @@
       <button class="nav-btn" data-view="players"><span class="nav-emoji">👨‍🚀</span><span class="nav-text">Players</span></button>
       <button class="nav-btn" data-view="games"><span class="nav-emoji">🎮</span><span class="nav-text">Games &amp; scores</span></button>
       <button class="nav-btn" data-view="questions"><span class="nav-emoji">💬</span><span class="nav-text">Questions <span class="qf-unread-count" id="qfQuestionsBadge" hidden></span></span></button>
+      <button class="nav-btn" data-view="superpowers"><span class="nav-emoji">🚀</span><span class="nav-text">Superpowers</span></button>
       <button class="nav-btn" data-view="admin"><span class="nav-emoji">🛡️</span><span class="nav-text">Admin controls</span></button>
     </nav>
     <div class="sidebar-bottom"><div class="secure-pill"><span class="dot"></span> PRIVATE &amp; SECURE</div><button class="side-action" id="logoutBtn">🚪 <span>Sign out</span></button><div class="side-note">QUIZFORCE HQ • v4.0 • MESSAGES</div></div>
@@ -118,15 +122,46 @@
     <section class="view" id="view-games"><div class="section-intro"><div><h2>🎮 Every completed game</h2><p>All tracked scores, including those never posted to the leaderboard.</p></div><button class="btn secondary" data-export="games">⬇ Export CSV</button></div><div class="filter-bar"><select class="select" id="gameSubject" aria-label="Filter subject"><option value="">All subjects</option><option>Mathematics</option><option>English</option><option>Afrikaans</option><option>Natural Sciences</option><option>Social Sciences</option></select><select class="select" id="gameDifficulty" aria-label="Filter difficulty"><option value="">All difficulties</option><option value="easy">Easy</option><option value="medium">Medium</option><option value="hard">Hard</option></select><button class="btn secondary" id="clearGameFilters">Clear filters</button></div><div class="table-wrap"><table><thead><tr><th>When</th><th>Player</th><th>Subject</th><th>Difficulty</th><th>Score</th><th>Earned XP</th><th>Manage</th></tr></thead><tbody id="gameRows"></tbody></table></div><div class="pagination"><span id="gameCount">—</span><button class="btn secondary" id="moreGames" hidden>Load more games ↓</button></div></section>
     <section class="view" id="view-questions">
       <div class="section-intro"><div><h2>💬 Questions &amp; ideas</h2><p>Private messages from QUIZFORCE players. Grouped by nickname, so you can reply to each person!</p></div><button class="btn secondary" type="button" id="qfQuestionsRefresh">↻ Refresh inbox</button></div>
-      <div class="filter-bar"><input class="field search" id="qfQuestionsSearch" placeholder="🔎 Search nicknames or messages…" aria-label="Search messages"><select class="select" id="qfQuestionsFilter" aria-label="Filter messages"><option value="all">All messages</option><option value="open">⏳ Unanswered</option><option value="answered">✅ Answered</option><option value="archived">📦 Archived</option></select></div>
+      <div class="filter-bar"><input class="field search" id="qfQuestionsSearch" placeholder="🔎 Search nicknames or messages…" aria-label="Search messages"><select class="select" id="qfQuestionsCategory" aria-label="Filter message category"><option value="all">All categories</option><option value="Idea">💡 Ideas</option><option value="Question">❓ Questions</option><option value="Bug report">🐛 Bug reports</option><option value="Other">💬 Other</option></select><select class="select" id="qfQuestionsFilter" aria-label="Filter messages"><option value="all">All messages</option><option value="open">⏳ Unanswered</option><option value="answered">✅ Answered</option><option value="archived">📦 Archived</option></select></div>
       <div class="qf-questions-summary" id="qfQuestionsSummary">Loading your messages…</div>
       <div id="qfQuestionsGroups" class="qf-questions-groups"><div class="empty">Loading questions…</div></div>
       <div class="pagination"><span id="qfQuestionsCount">—</span><button class="btn secondary" type="button" id="qfQuestionsMore" hidden>Load more messages ↓</button></div>
       <div class="notice">🔐 <strong>Private inbox:</strong> Only you can read everyone's messages in HQ. Players can read replies only through their saved browser inbox key. Encourage nicknames, not real names or contact details.</div>
     </section>
+    <section class="view" id="view-superpowers">
+      <div class="section-intro"><div><h2>🚀 QUIZFORCE Superpowers</h2><p>Broadcast updates, launch a competition, reward players and check today's activity. All changes stay password-protected.</p></div><button class="btn secondary" type="button" id="v5Refresh">↻ Refresh</button></div>
+      <div class="v5-metrics"><div class="panel v5-metric"><strong id="v5Today">—</strong><small>🎮 Tracked games today (UTC)</small></div><div class="panel v5-metric"><strong id="v5Week">—</strong><small>📈 Games this week</small></div><div class="panel v5-metric"><strong id="v5Bugs">—</strong><small>🐛 Open bug reports</small><button class="btn ghost" id="v5OpenBugs">View reports ↗</button></div></div>
+      <div class="grid-two">
+        <div class="panel v5-panel"><h3>📢 Announcement to all players</h3><p>Appears in the game's Profile &amp; Shop area. Never include private information.</p>
+          <form id="v5AnnouncementForm"><label for="v5Announcement">Announcement (max 240 characters)</label><textarea id="v5Announcement" maxlength="240" placeholder="🚀 A new QUIZFORCE challenge is coming!" required></textarea>
+          <label for="v5AnnouncementEnd">Expires (optional)</label><input id="v5AnnouncementEnd" type="datetime-local"><div class="admin-actions"><button class="btn" type="submit">📣 Publish</button><button class="btn ghost" type="button" id="v5ClearAnnouncement">Clear</button></div></form>
+          <div class="v5-current" id="v5AnnouncementCurrent">No announcement</div>
+        </div>
+        <div class="panel v5-panel"><h3>🏆 Competition control</h3><p>Each player gets ONE recorded attempt: their first tracked quiz of 10+ questions in the chosen subject during the event. IDK still scores zero.</p>
+          <form id="v5CompetitionForm"><label for="v5CompetitionTitle">Competition title</label><input id="v5CompetitionTitle" maxlength="60" placeholder="Weekend Quiz Battle" required>
+          <label for="v5CompetitionSubject">Subject</label><select id="v5CompetitionSubject"><option>All subjects</option><option>Mathematics</option><option>English</option><option>Afrikaans</option><option>Natural Sciences</option><option>Social Sciences</option></select>
+          <label for="v5CompetitionStart">Starts (your local time)</label><input type="datetime-local" id="v5CompetitionStart" required><label for="v5CompetitionEnd">Ends (your local time)</label><input type="datetime-local" id="v5CompetitionEnd" required>
+          <div class="admin-actions"><button class="btn" type="submit">🚀 Launch competition</button><button class="btn ghost" type="button" id="v5ClearCompetition">End event</button></div></form>
+          <div class="v5-current" id="v5CompetitionCurrent">No competition</div>
+          <div id="v5CompetitionBoard" class="v5-board"></div>
+        </div>
+      </div>
+      <div class="grid-two">
+        <div class="panel v5-panel"><h3>🎖️ Award a special badge</h3><p>Special badges show up in the player's profile. They don't change XP or scores.</p>
+          <label for="v5PlayerSearch">Find a player by nickname</label><input id="v5PlayerSearch" placeholder="Search players…">
+          <form id="v5BadgeForm"><label for="v5BadgePlayer">Player</label><select id="v5BadgePlayer" required><option value="">Search for a player first</option></select>
+          <label for="v5Badge">Badge</label><select id="v5Badge"><option value="founder">🌟 Founder</option><option value="helper">💡 Helpful Hero</option><option value="star">⭐ Star Player</option><option value="champion">🏆 HQ Champion</option></select>
+          <button class="btn" type="submit">🎁 Award badge</button></form>
+        </div>
+        <div class="panel v5-panel"><h3>🏅 Recently awarded</h3><div id="v5AwardList" class="v5-awards">No awards yet.</div><p class="tiny-muted">Use Revoke if you awarded a badge by mistake.</p></div>
+      </div>
+      <div class="notice">🔐 Player profiles are tied to their nickname and a private browser key. The XP shop only unlocks cosmetic items. Existing HQ passwords and your D1 database binding remain unchanged.</div>
+      <div class="notice warning">⚠️ Competition scores and XP are reported by game clients, not independently verified. First-attempt rules reduce repeat grinding but do not guarantee cheat-proof results.</div>
+    </section>
     <section class="view" id="view-admin">
       <div class="admin-hero"><div class="shield">🛡️</div><div><h2>Captain's control room</h2><p>Private tools for managing QUIZFORCE HQ statistics. Only someone with your HQ password can use these controls.</p></div></div>
       <div class="admin-grid">
+        <div class="panel admin-card"><h3>🚀 HQ Superpowers</h3><p>Announcements, competitions, badges, bug reports and today's activity.</p><div class="admin-actions"><button class="btn secondary" data-jump="superpowers">Open Superpowers ↗</button></div></div>
         <div class="panel admin-card"><h3>👑 Featured champion</h3><p>Choose the champion featured in both HQ and QUIZFORCE. This does not fake the public score rankings.</p><div class="feature-current" id="featuredCurrent">Automatic top XP player</div><div class="admin-actions"><button class="btn secondary" id="chooseChampion">Choose player ↗</button><button class="btn ghost" id="clearChampion">Use top XP</button></div></div>
         <div class="panel admin-card"><h3>🧑‍🚀 Player management</h3><p>Change a nickname or XP in the game, or hide linked scores from the public leaderboard.</p><div class="admin-actions"><button class="btn secondary" data-jump="players">Open players ↗</button></div></div>
         <div class="panel admin-card"><h3>🎯 Score corrections</h3><p>Correct a completed game's score. If it was linked to a new leaderboard submission, the corrected score also appears in QUIZFORCE.</p><div class="admin-actions"><button class="btn secondary" data-jump="games">Open games ↗</button></div></div>
@@ -140,7 +175,7 @@
     <div class="footer-note">⚡ QUIZFORCE HQ • Private mission control • All times shown in your device's local time • No player locations are collected</div>
   </main>
 </div>
-<nav class="mobile-bar" id="mobileBar" hidden aria-label="Mobile navigation"><button class="mobile-btn active" data-view="overview"><span>🛰️</span>Overview</button><button class="mobile-btn" data-view="players"><span>👨‍🚀</span>Players</button><button class="mobile-btn" data-view="games"><span>🎮</span>Games</button><button class="mobile-btn" data-view="questions"><span>💬</span>Questions</button><button class="mobile-btn" data-view="admin"><span>🛡️</span>Admin</button></nav>
+<nav class="mobile-bar" id="mobileBar" hidden aria-label="Mobile navigation"><button class="mobile-btn active" data-view="overview"><span>🛰️</span>Overview</button><button class="mobile-btn" data-view="players"><span>👨‍🚀</span>Players</button><button class="mobile-btn" data-view="games"><span>🎮</span>Games</button><button class="mobile-btn" data-view="questions"><span>💬</span>Questions</button><button class="mobile-btn" data-view="superpowers"><span>🚀</span>Power</button><button class="mobile-btn" data-view="admin"><span>🛡️</span>Admin</button></nav>
 <div class="modal-backdrop" id="modalBackdrop" hidden><div class="modal" role="dialog" aria-modal="true" aria-labelledby="modalTitle"><div id="modalContent"></div></div></div>
 <div class="toast" id="toast" role="status" hidden></div>
 <script>
@@ -153,7 +188,7 @@ const fmt = value => nf.format(Number(value)||0);
 const short = value => {const n=Number(value)||0;return n>=1000000?(n/1000000).toFixed(1)+'m':n>=10000?(n/1000).toFixed(1)+'k':fmt(n)};
 const when = text => {if(!text)return '—';const s=String(text);const d=new Date(s.includes('T')?s:s.replace(' ','T')+'Z');return Number.isNaN(d.getTime())?s:d.toLocaleString('en-ZA',{day:'numeric',month:'short',hour:'2-digit',minute:'2-digit'});};
 const state={view:'overview',dashboard:null,leader:'xp',players:[],playersTotal:0,playersOffset:0,runs:[],runsTotal:0,runsOffset:0,questions:[],questionsTotal:0,questionsOffset:0,questionsUnanswered:0,busy:false,questionsBusy:false};
-const title={overview:'Mission overview',players:'Worldwide players',games:'Games & scores',questions:'Questions & ideas',admin:'Admin controls'};
+const title={overview:'Mission overview',players:'Worldwide players',games:'Games & scores',questions:'Questions & ideas',superpowers:'HQ Superpowers',admin:'Admin controls'};
 let toastTimer;
 function notify(message,error=false){const el=$('toast');el.textContent=message;el.className='toast'+(error?' error':'');el.hidden=false;clearTimeout(toastTimer);toastTimer=setTimeout(()=>el.hidden=true,4200);}
 async function api(action,opts={}){
@@ -179,10 +214,10 @@ passwordToggle.addEventListener('click',()=>setPasswordVisibility(passwordInput.
 $('loginForm').addEventListener('submit',async e=>{e.preventDefault();const btn=$('loginBtn');btn.disabled=true;btn.textContent='🔐 Checking…';$('loginError').textContent='';try{await api('login',{body:{action:'login',password:$('password').value}});$('password').value='';setPasswordVisibility(false);showApp();await refreshAll();notify('Welcome to mission control! ⚡');}catch(error){$('loginError').textContent=error.message;}finally{btn.disabled=false;btn.textContent='🚀 Enter mission control';}});
 async function logout(){try{await api('logout',{body:{action:'logout'}});}catch{}state.dashboard=null;showGate();$('password').value='';setPasswordVisibility(false);notify('Signed out securely.');}
 $('logoutBtn').addEventListener('click',logout);
-function navigate(view){if(!title[view])return;state.view=view;document.querySelectorAll('.view').forEach(el=>el.classList.toggle('active',el.id==='view-'+view));document.querySelectorAll('[data-view]').forEach(el=>el.classList.toggle('active',el.dataset.view===view));$('pageTitle').textContent=title[view];window.scrollTo({top:0,behavior:'smooth'});if(view==='players'&&!state.players.length)loadPlayers(true);if(view==='games'&&!state.runs.length)loadRuns(true);if(view==='questions')loadQuestions(true);if(view==='admin')renderAdmin();}
+function navigate(view){if(!title[view])return;state.view=view;document.querySelectorAll('.view').forEach(el=>el.classList.toggle('active',el.id==='view-'+view));document.querySelectorAll('[data-view]').forEach(el=>el.classList.toggle('active',el.dataset.view===view));$('pageTitle').textContent=title[view];window.scrollTo({top:0,behavior:'smooth'});if(view==='players'&&!state.players.length)loadPlayers(true);if(view==='games'&&!state.runs.length)loadRuns(true);if(view==='questions')loadQuestions(true);if(view==='superpowers')loadSuperpowers();if(view==='admin')renderAdmin();}
 document.addEventListener('click',e=>{const nav=e.target.closest('[data-view]');if(nav){navigate(nav.dataset.view);return;}const jump=e.target.closest('[data-jump]');if(jump){navigate(jump.dataset.jump);return;}});
 $('refreshBtn').addEventListener('click',()=>refreshAll(true));
-async function refreshAll(announce=false){const btn=$('refreshBtn');btn.disabled=true;try{const result=await api('dashboard');state.dashboard=result.data;renderDashboard();$('lastUpdate').textContent='Updated '+new Date(result.data.updatedAt).toLocaleTimeString('en-ZA',{hour:'2-digit',minute:'2-digit'});if(state.view==='players')await loadPlayers(true);if(state.view==='games')await loadRuns(true);if(state.view==='questions')await loadQuestions(true);if(announce)notify('Worldwide stats refreshed ⚡');}catch(error){notify(error.message,true);}finally{btn.disabled=false;}}
+async function refreshAll(announce=false){const btn=$('refreshBtn');btn.disabled=true;try{const result=await api('dashboard');state.dashboard=result.data;renderDashboard();$('lastUpdate').textContent='Updated '+new Date(result.data.updatedAt).toLocaleTimeString('en-ZA',{hour:'2-digit',minute:'2-digit'});if(state.view==='players')await loadPlayers(true);if(state.view==='games')await loadRuns(true);if(state.view==='questions')await loadQuestions(true);if(state.view==='superpowers')await loadSuperpowers();if(announce)notify('Worldwide stats refreshed ⚡');}catch(error){notify(error.message,true);}finally{btn.disabled=false;}}
 function renderDashboard(){const d=state.dashboard;if(!d)return;const o=d.overview;
   const cards=[['👨‍🚀','TOTAL PLAYERS',o.players,'Separate nickname profiles','#4cf0d9'],['🎮','GAMES COMPLETED',o.games,'Includes older synced totals','#58aaff'],['💯','PERFECT SCORES',o.perfect,'Player-reported total','#ffda63'],['⚡','TOTAL XP',o.xp,'Across visible players','#a18dff'],['📡','TRACKED GAMES',o.tracked,'Detailed game records','#ff8bba']];
   $('metrics').innerHTML=cards.map(c=>`<div class="metric" style="--accent:${c[4]}"><div class="metric-icon">${c[0]}</div><div class="metric-label">${c[1]}</div><div class="metric-value">${short(c[2])}</div><div class="metric-caption">${c[3]}</div></div>`).join('');
@@ -192,12 +227,12 @@ function renderDashboard(){const d=state.dashboard;if(!d)return;const o=d.overvi
   $('recentGames').innerHTML=d.recent?.length?`<div style="display:grid;gap:13px">${d.recent.slice(0,6).map(r=>`<div style="display:flex;justify-content:space-between;gap:10px;align-items:center;border-bottom:1px solid #253653;padding-bottom:11px"><div style="min-width:0"><div style="font-weight:850;overflow:hidden;text-overflow:ellipsis;white-space:nowrap">${esc(r.nickname)} <span class="tiny-muted">• ${esc(r.subject)}</span></div><div class="tiny-muted">${esc(when(r.completedAt))}</div></div><span class="score-pill ${r.correct===r.total?'perfect':''}">${r.correct}/${r.total}</span></div>`).join('')}</div>`:'<div class="empty">No games recorded yet.</div>';
   renderLeaders();renderAdmin();
 }
-function renderLeaders(){const rows=state.dashboard?.leaders?.[state.leader]||[];const unit=state.leader==='xp'?'XP':state.leader==='games'?'games':'perfect';$('leaderList').innerHTML=rows.length?rows.slice(0,5).map((p,i)=>`<div class="leader-row"><div class="place ${i===0?'top':''}">${i===0?'🥇':i===1?'🥈':i===2?'🥉':'#'+(i+1)}</div><div class="player-dot ${i===0?'gold':''}">${esc(p.nickname.slice(0,1).toUpperCase())}</div><div style="min-width:0"><div class="leader-name">${esc(p.nickname)}</div><div class="leader-rank">${esc(p.rank)}</div></div><div class="leader-score">${fmt(p[state.leader==='perfect'?'perfectRuns':state.leader])} <small>${unit}</small></div></div>`).join(''):'<div class="empty">Your first champion is waiting! 🏆</div>';
+function renderLeaders(){const rows=state.dashboard?.leaders?.[state.leader]||[];const unit=state.leader==='xp'?'XP':state.leader==='games'?'games':'perfect';$('leaderList').innerHTML=rows.length?rows.slice(0,5).map((p,i)=>`<div class="leader-row"><div class="place ${i===0?'top':''}">${i===0?'🥇':i===1?'🥈':i===2?'🥉':'#'+(i+1)}</div><div class="player-dot ${i===0?'gold':''}">${esc(p.avatar||p.nickname.slice(0,1).toUpperCase())}</div><div style="min-width:0"><div class="leader-name">${esc(p.nickname)}</div><div class="leader-rank">${esc(p.rank)}</div></div><div class="leader-score">${fmt(p[state.leader==='perfect'?'perfectRuns':state.leader])} <small>${unit}</small></div></div>`).join(''):'<div class="empty">Your first champion is waiting! 🏆</div>';
   document.querySelectorAll('[data-leader]').forEach(el=>el.classList.toggle('active',el.dataset.leader===state.leader));
 }
 document.addEventListener('click',e=>{const tab=e.target.closest('[data-leader]');if(tab){state.leader=tab.dataset.leader;renderLeaders();}});
 async function loadPlayers(reset=false){if(state.busy)return;state.busy=true;if(reset){state.players=[];state.playersOffset=0;}$('playerRows').classList.add('loading');try{const result=await api('players',{params:{sort:$('playerSort').value,search:$('playerSearch').value,includeHidden:$('showHidden').checked?'1':'0',offset:state.playersOffset,limit:30}});state.players.push(...result.data.rows);state.playersOffset+=result.data.rows.length;state.playersTotal=result.data.total;renderPlayers();}catch(error){notify(error.message,true);}finally{state.busy=false;$('playerRows').classList.remove('loading');}}
-function renderPlayers(){const rows=state.players;$('playerRows').innerHTML=rows.length?rows.map(p=>`<tr><td><div class="name-cell"><span class="mini-avatar">${esc(p.nickname.slice(0,1).toUpperCase())}</span><div><strong>${esc(p.nickname)}</strong>${p.hidden?'<div class="corrected">HIDDEN</div>':''}${p.overridden?'<div class="tiny-muted">HQ edited</div>':''}<div class="tiny-muted">Profile ${esc(p.playerId.slice(0,8))}</div></div></div></td><td><strong>${fmt(p.xp)}</strong></td><td>${fmt(p.games)} <span class="tiny-muted">(${fmt(p.trackedTests)} tracked)</span></td><td>${fmt(p.perfectRuns)}</td><td><span class="rank-pill">${esc(p.rank)}</span></td><td><button class="table-action" data-edit-player="${esc(p.playerId)}">Manage ✎</button></td></tr>`).join(''):'<tr><td colspan="6" class="empty">No players match your search. 👨‍🚀</td></tr>';$('playerCount').textContent=`Showing ${fmt(rows.length)} of ${fmt(state.playersTotal)} players`;$('morePlayers').hidden=rows.length>=state.playersTotal;}
+function renderPlayers(){const rows=state.players;$('playerRows').innerHTML=rows.length?rows.map(p=>`<tr><td><div class="name-cell"><span class="mini-avatar">${esc(p.avatar||p.nickname.slice(0,1).toUpperCase())}</span><div><strong>${esc(p.nickname)}</strong>${p.hidden?'<div class="corrected">HIDDEN</div>':''}${p.overridden?'<div class="tiny-muted">HQ edited</div>':''}<div class="tiny-muted">Profile ${esc(p.playerId.slice(0,8))}</div></div></div></td><td><strong>${fmt(p.xp)}</strong></td><td>${fmt(p.games)} <span class="tiny-muted">(${fmt(p.trackedTests)} tracked)</span></td><td>${fmt(p.perfectRuns)}</td><td><span class="rank-pill">${esc(p.rank)}</span></td><td><button class="table-action" data-edit-player="${esc(p.playerId)}">Manage ✎</button></td></tr>`).join(''):'<tr><td colspan="6" class="empty">No players match your search. 👨‍🚀</td></tr>';$('playerCount').textContent=`Showing ${fmt(rows.length)} of ${fmt(state.playersTotal)} players`;$('morePlayers').hidden=rows.length>=state.playersTotal;}
 let searchTimer;$('playerSearch').addEventListener('input',()=>{clearTimeout(searchTimer);searchTimer=setTimeout(()=>loadPlayers(true),320);});$('playerSort').addEventListener('change',()=>loadPlayers(true));$('showHidden').addEventListener('change',()=>loadPlayers(true));$('morePlayers').addEventListener('click',()=>loadPlayers());
 async function loadRuns(reset=false){if(state.busy)return;state.busy=true;if(reset){state.runs=[];state.runsOffset=0;}$('gameRows').classList.add('loading');try{const result=await api('runs',{params:{subject:$('gameSubject').value,difficulty:$('gameDifficulty').value,offset:state.runsOffset,limit:30}});state.runs.push(...result.data.rows);state.runsOffset+=result.data.rows.length;state.runsTotal=result.data.total;renderRuns();}catch(error){notify(error.message,true);}finally{state.busy=false;$('gameRows').classList.remove('loading');}}
 function renderRuns(){const rows=state.runs;$('gameRows').innerHTML=rows.length?rows.map(r=>`<tr><td class="tiny-muted">${esc(when(r.completedAt))}</td><td><strong>${esc(r.nickname)}</strong></td><td>${esc(r.subject)}</td><td><span class="difficulty ${esc(r.difficulty)}">${esc(r.difficulty)}</span>${r.speedrun?' ⏱️':''}</td><td><span class="score-pill ${r.correct===r.total?'perfect':''}">${r.correct}/${r.total}</span>${r.corrected?' <span class="corrected">EDITED</span>':''}</td><td>+${fmt(r.earnedXp)}</td><td><button class="table-action" data-edit-run="${esc(r.runId)}">Correct ✎</button></td></tr>`).join(''):'<tr><td colspan="7" class="empty">No games match these filters. 🎮</td></tr>';$('gameCount').textContent=`Showing ${fmt(rows.length)} of ${fmt(state.runsTotal)} games`;$('moreGames').hidden=rows.length>=state.runsTotal;}
@@ -208,7 +243,7 @@ async function loadQuestions(reset=false){
  const host=$('qfQuestionsGroups');host.classList.add('loading');
  try{
   const result=await api('questions',{params:{status:$('qfQuestionsFilter').value,
-   search:$('qfQuestionsSearch').value,offset:state.questionsOffset,limit:100}});
+   search:$('qfQuestionsSearch').value,category:$('qfQuestionsCategory').value,offset:state.questionsOffset,limit:100}});
   state.questions.push(...result.data.rows);
   state.questionsOffset+=result.data.rows.length;
   state.questionsTotal=result.data.total;
@@ -245,6 +280,7 @@ function renderQuestions(){
 }
 $('qfQuestionsRefresh').addEventListener('click',()=>loadQuestions(true));
 $('qfQuestionsFilter').addEventListener('change',()=>loadQuestions(true));
+$('qfQuestionsCategory').addEventListener('change',()=>loadQuestions(true));
 let questionSearchTimer;
 $('qfQuestionsSearch').addEventListener('input',()=>{clearTimeout(questionSearchTimer);questionSearchTimer=setTimeout(()=>loadQuestions(true),300);});
 $('qfQuestionsMore').addEventListener('click',()=>loadQuestions(false));
@@ -286,13 +322,74 @@ function editRun(id){const r=state.runs.find(r=>r.runId===id);if(!r)return;openM
   $('resetRun')?.addEventListener('click',()=>{if(confirm('Restore this game’s original tracked score?'))doAdmin({operation:'reset_run',runId:id});});
 }
 document.addEventListener('click',e=>{const p=e.target.closest('[data-edit-player]');if(p){editPlayer(p.dataset.editPlayer);return;}const r=e.target.closest('[data-edit-run]');if(r){editRun(r.dataset.editRun);return;}});
-async function doAdmin(payload){const buttons=[...$('modalContent').querySelectorAll('button')];buttons.forEach(b=>b.disabled=true);try{await api('hq-admin',{body:{action:'admin',...payload}});closeModal();await refreshAll();state.players=[];state.runs=[];if(state.view==='players')await loadPlayers(true);if(state.view==='games')await loadRuns(true);if(state.view==='questions')await loadQuestions(true);notify('HQ changes saved! ⚡');}catch(error){notify(error.message,true);buttons.forEach(b=>b.disabled=false);}}
+async function doAdmin(payload){const buttons=[...$('modalContent').querySelectorAll('button')];buttons.forEach(b=>b.disabled=true);try{await api('hq-admin',{body:{action:'admin',...payload}});closeModal();await refreshAll();state.players=[];state.runs=[];if(state.view==='players')await loadPlayers(true);if(state.view==='games')await loadRuns(true);if(state.view==='questions')await loadQuestions(true);if(state.view==='superpowers')await loadSuperpowers();notify('HQ changes saved! ⚡');}catch(error){notify(error.message,true);buttons.forEach(b=>b.disabled=false);}}
 $('chooseChampion').addEventListener('click',async()=>{try{const result=await api('players',{params:{limit:100,sort:'xp'}});const rows=result.data.rows;openModal(`<h2 id="modalTitle">👑 Choose featured champion</h2><p>Select the player to spotlight in HQ. This highlights the champion in QUIZFORCE too, without falsifying score rankings.</p><div style="max-height:310px;overflow:auto;display:grid;gap:8px">${rows.length?rows.map(p=>`<button type="button" class="btn secondary" style="justify-content:space-between" data-choose-player="${esc(p.playerId)}"><span>${esc(p.nickname)}</span><span>${fmt(p.xp)} XP</span></button>`).join(''):'<div class="empty">No players yet.</div>'}</div><div class="modal-actions"><button class="btn ghost" data-close-modal>Cancel</button></div>`);}catch(error){notify(error.message,true);}});
 document.addEventListener('click',e=>{const p=e.target.closest('[data-choose-player]');if(p)doAdmin({operation:'feature',playerId:p.dataset.choosePlayer});});
 $('clearChampion').addEventListener('click',()=>doAdmin({operation:'clear_feature'}));
 function csvCell(value){const str=String(value??'');return /[",\r\n]/.test(str)?'"'+str.replace(/"/g,'""')+'"':str;}
 async function exportCsv(type){notify('Preparing CSV export…');try{const rows=[];let offset=0;let total=1;while(offset<total&&offset<10000){const result=await api(type==='players'?'players':'runs',{params:{offset,limit:100,...(type==='players'?{includeHidden:'1'}:{})}});rows.push(...result.data.rows);offset+=result.data.rows.length;total=result.data.total;if(!result.data.rows.length)break;}const fields=type==='players'?['nickname','xp','games','trackedTests','legacyTests','perfectRuns','rank','hidden','playerId']:['completedAt','nickname','subject','difficulty','correct','total','earnedXp','speedrun','corrected','runId'];const lines=[fields.join(','),...rows.map(row=>fields.map(f=>csvCell(row[f])).join(','))];const blob=new Blob(['\ufeff'+lines.join('\r\n')],{type:'text/csv;charset=utf-8'});const url=URL.createObjectURL(blob);const link=document.createElement('a');link.href=url;link.download=`QUIZFORCE_HQ_${type}_${new Date().toISOString().slice(0,10)}.csv`;document.body.appendChild(link);link.click();link.remove();setTimeout(()=>URL.revokeObjectURL(url),1000);notify(`Exported ${fmt(rows.length)} ${type} records!`);if(offset<total)notify('Export limited to 10,000 records.',true);}catch(error){notify(error.message,true);}}
 document.addEventListener('click',e=>{const btn=e.target.closest('[data-export]');if(btn)exportCsv(btn.dataset.export);});
+
+// QUIZFORCE HQ v5 • Superpowers. Reuses the existing authenticated /api/hq.
+const V5_BADGES={founder:'🌟 Founder',helper:'💡 Helpful Hero',star:'⭐ Star Player',champion:'🏆 HQ Champion'};
+const localDateTime=iso=>{
+ if(!iso)return '';
+ const d=new Date(iso);if(Number.isNaN(d.getTime()))return '';
+ const n=new Date(d.getTime()-d.getTimezoneOffset()*60000);
+ return n.toISOString().slice(0,16);
+};
+let v5Data=null,v5Busy=false,v5SearchTimer;
+async function loadSuperpowers(){
+ if(v5Busy)return;v5Busy=true;
+ try{
+  const r=await api('superpowers');v5Data=r.data;
+  $('v5Today').textContent=fmt(r.data.stats.today);$('v5Week').textContent=fmt(r.data.stats.week);$('v5Bugs').textContent=fmt(r.data.stats.bugs);
+  const a=r.data.announcement,c=r.data.competition;
+  $('v5Announcement').value=a?.text||'';
+  $('v5AnnouncementEnd').value=localDateTime(a?.expiresAt);
+  $('v5AnnouncementCurrent').textContent=a?.text?('📢 Live: '+a.text):'No announcement is live.';
+  $('v5CompetitionTitle').value=c?.title||'';
+  $('v5CompetitionSubject').value=c?.subject||'All subjects';
+  $('v5CompetitionStart').value=localDateTime(c?.start)||localDateTime(new Date().toISOString());
+  $('v5CompetitionEnd').value=localDateTime(c?.end)||localDateTime(new Date(Date.now()+7*86400000).toISOString());
+  $('v5CompetitionCurrent').textContent=c?.title?('🏆 '+c.title+' • '+c.subject+' • '+when(c.start)+' to '+when(c.end)):'No competition is active.';
+  $('v5CompetitionBoard').innerHTML=(r.data.leaderboard||[]).length?'<h4>🏁 First-attempt standings</h4>'+r.data.leaderboard.map((x,i)=>`<div class="v5-score"><span>${['🥇','🥈','🥉'][i]||'⭐'} ${esc(x.nickname)}</span><strong>${x.correct}/${x.total}</strong></div>`).join(''):'<p class="tiny-muted">No qualifying attempts yet.</p>';
+  $('v5AwardList').innerHTML=(r.data.awards||[]).length?r.data.awards.map(x=>`<div class="v5-score"><span>${esc(x.nickname)} · ${esc(V5_BADGES[x.badgeId]||x.badgeId)}</span><button type="button" class="btn ghost" data-v5-revoke="${esc(x.playerId)}" data-v5-badge="${esc(x.badgeId)}">Revoke</button></div>`).join(''):'<p class="tiny-muted">No special badges awarded yet.</p>';
+  if(!$('v5BadgePlayer').options.length||$('v5BadgePlayer').options.length===1)await searchV5Players();
+ }catch(error){notify(error.message,true)}finally{v5Busy=false}
+}
+async function saveV5(operation,params={}){
+ try{await api('hq-admin',{body:{action:'admin',operation,...params}});notify('🚀 Superpower saved!');await loadSuperpowers();}
+ catch(error){notify(error.message,true)}
+}
+async function searchV5Players(){
+ try{
+  const r=await api('players',{params:{search:$('v5PlayerSearch').value.trim(),limit:50}});
+  const selected=$('v5BadgePlayer').value;
+  $('v5BadgePlayer').innerHTML='<option value="">Choose a player…</option>'+r.data.rows.map(p=>`<option value="${esc(p.playerId)}">${esc(p.nickname)} (${fmt(p.xp)} XP)</option>`).join('');
+  if([...$('v5BadgePlayer').options].some(o=>o.value===selected))$('v5BadgePlayer').value=selected;
+ }catch(error){notify(error.message,true)}
+}
+$('v5Refresh').addEventListener('click',()=>loadSuperpowers());
+$('v5OpenBugs').addEventListener('click',()=>{$('qfQuestionsCategory').value='Bug report';navigate('questions')});
+$('v5PlayerSearch').addEventListener('input',()=>{clearTimeout(v5SearchTimer);v5SearchTimer=setTimeout(searchV5Players,300)});
+$('v5AnnouncementForm').addEventListener('submit',e=>{e.preventDefault();const end=$('v5AnnouncementEnd').value;
+ void saveV5('save_announcement',{text:$('v5Announcement').value,expiresAt:end?new Date(end).toISOString():null});});
+$('v5ClearAnnouncement').addEventListener('click',()=>{if(confirm('Remove the announcement from QUIZFORCE?'))void saveV5('clear_announcement')});
+$('v5CompetitionForm').addEventListener('submit',e=>{e.preventDefault();
+ const start=$('v5CompetitionStart').value,end=$('v5CompetitionEnd').value;
+ if(!start||!end){notify('Enter both competition dates.',true);return;}
+ void saveV5('save_competition',{title:$('v5CompetitionTitle').value,subject:$('v5CompetitionSubject').value,start:new Date(start).toISOString(),end:new Date(end).toISOString()});
+});
+$('v5ClearCompetition').addEventListener('click',()=>{if(confirm('End the competition and clear the standings?'))void saveV5('clear_competition')});
+$('v5BadgeForm').addEventListener('submit',e=>{e.preventDefault();const playerId=$('v5BadgePlayer').value;
+ if(!playerId){notify('Choose a player first.',true);return;}
+ void saveV5('award_badge',{playerId,badgeId:$('v5Badge').value});
+});
+document.addEventListener('click',e=>{
+ const btn=e.target.closest('[data-v5-revoke]');if(!btn)return;
+ if(confirm('Revoke this special badge?'))void saveV5('revoke_badge',{playerId:btn.dataset.v5Revoke,badgeId:btn.dataset.v5Badge});
+});
 start();
 })();
 </script>
